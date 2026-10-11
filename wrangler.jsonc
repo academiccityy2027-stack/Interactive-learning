@@ -2,5 +2,5 @@
   "name": "learning-universe-school",
   "main": "worker/index.js",
   "compatibility_date": "2026-09-01",
-  "d1_databases": [{"binding":"DB","database_name":"learning-universe","database_id":"REPLACE_WITH_YOUR_D1_DATABASE_ID"}]
+  "d1_databases": [{"binding":"DB","database_name":"learning-universe","database_id":"609ff247-fcdf-43fa-a40d-a5c4656e1f28"}]
 }
