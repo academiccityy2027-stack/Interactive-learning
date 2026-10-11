@@ -1,0 +1,12 @@
+CREATE TABLE users(id TEXT PRIMARY KEY, username TEXT UNIQUE NOT NULL, name TEXT NOT NULL, grade INTEGER NOT NULL CHECK(grade BETWEEN 4 AND 12), avatar TEXT NOT NULL DEFAULT '🚀', role TEXT NOT NULL DEFAULT 'student' CHECK(role IN ('student','teacher','admin')), password TEXT NOT NULL, recovery TEXT NOT NULL, created TEXT NOT NULL);
+CREATE TABLE sessions(token TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), expires INTEGER NOT NULL);
+CREATE TABLE classes(id TEXT PRIMARY KEY, name TEXT NOT NULL, grade INTEGER NOT NULL, teacher_id TEXT NOT NULL REFERENCES users(id), code TEXT UNIQUE NOT NULL);
+CREATE TABLE memberships(class_id TEXT NOT NULL REFERENCES classes(id), user_id TEXT NOT NULL REFERENCES users(id), PRIMARY KEY(class_id,user_id));
+CREATE TABLE content(id TEXT PRIMARY KEY, owner_id TEXT NOT NULL REFERENCES users(id), class_id TEXT REFERENCES classes(id), grade INTEGER NOT NULL, subject TEXT NOT NULL, kind TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', url TEXT NOT NULL DEFAULT '', difficulty TEXT NOT NULL DEFAULT 'core', deadline TEXT, questions TEXT NOT NULL DEFAULT '[]');
+CREATE TABLE results(id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), content_id TEXT NOT NULL, title TEXT NOT NULL, subject TEXT NOT NULL, grade INTEGER NOT NULL, class_id TEXT, score INTEGER NOT NULL, total INTEGER NOT NULL, answers TEXT NOT NULL, feedback TEXT NOT NULL, created TEXT NOT NULL);
+CREATE TABLE projects(id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), class_id TEXT NOT NULL REFERENCES classes(id), title TEXT NOT NULL, category TEXT NOT NULL, description TEXT NOT NULL, url TEXT NOT NULL DEFAULT '', image TEXT NOT NULL DEFAULT '', approved INTEGER NOT NULL DEFAULT 0, created TEXT NOT NULL);
+CREATE TABLE limits(key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires INTEGER NOT NULL);
+CREATE TABLE audit(id TEXT PRIMARY KEY, actor TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL, created TEXT NOT NULL);
+CREATE INDEX results_user ON results(user_id,created);
+CREATE INDEX content_class ON content(class_id,grade);
+CREATE INDEX membership_user ON memberships(user_id);
