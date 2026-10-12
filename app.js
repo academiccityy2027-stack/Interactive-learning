@@ -123,13 +123,24 @@ function luRenderRoleLanding(){
  const stat=el('div','lu-role-count');
  stat.append(el('strong',null,String(APP.classes.length)),el('span',null,teacherMode?'My assigned classes':'School classes'));
  $('luRoleStats').append(stat);
+ if(!teacherMode){
+  const currentUser=APP.user.id;
+  call('/api/admin/center/overview').then(data=>{
+   if(APP.user?.id!==currentUser||luTeacherView)return;
+   const box=$('luRoleStats');if(!box)return;
+   box.replaceChildren();
+   const tiles=[['Registered users',data.stats.users],['Students',data.stats.students],['Teachers',data.stats.teachers],['Classes',data.stats.classes],['Recorded quiz attempts',data.stats.submissions],['Unresolved tickets',data.stats.open_tickets]];
+   for(const [label,value]of tiles){const tile=el('div','lu-role-count');tile.append(el('strong',null,String(value||0)),el('span',null,label));box.append(tile)}
+  }).catch(()=>{const box=$('luRoleStats');if(box&&!luTeacherView)box.append(el('small','mut','Detailed school metrics could not be loaded.'))});
+ }
+
  const classes=$('luRoleClasses');classes.replaceChildren();
  classes.append(el('h2',null,teacherMode?'My classes':'School overview'));
  if(!APP.classes.length){classes.append(el('p','mut',teacherMode?'No classes are assigned to your administrator account yet. Create a class in the Teacher Dashboard or assign ownership from school management.':'No school classes have been created yet.'));return}
  const grid=el('div','lu-class-grid');
  for(const c of APP.classes.slice(0,24)){
   const tile=el('div','lu-class-tile');
-  tile.append(el('small',null,'GRADE '+c.grade),el('strong',null,c.name),button(teacherMode?'Open class':'View class',()=>{ $('gradeFilter').value=c.grade;teacherDashboard() },true));
+  tile.append(el('small',null,'GRADE '+c.grade),el('strong',null,c.name),button(teacherMode?'Open class':'Manage class',()=>{ $('gradeFilter').value=c.grade;if(teacherMode)teacherDashboard();else adminTool() },true));
   grid.append(tile);
  }
  classes.append(grid);
