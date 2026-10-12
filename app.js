@@ -33,7 +33,7 @@ function authForm(mode){
  form.onsubmit=async e=>{e.preventDefault();const b=form.querySelector('button[type=submit]');b.disabled=true;const body=Object.fromEntries(new FormData(form));if(!reg&&!recover)body.portal=teacher?'teacher':'student';try{const r=await call('/api/'+(reg?'register':recover?'recover':'login'),body);if(r.user){APP.user=r.user;await signedIn()}if(r.recoveryCode){$('gtrack').replaceChildren();const w=el('div','auth');w.append(el('h2',null,'🔑 Save your recovery code'),el('p','mut',recover?'Your password is reset. The previous recovery code no longer works.':'Keep this code privately. It lets you recover your account without email.'),el('div','recovery',r.recoveryCode));const label=el('label'),chk=el('input');chk.type='checkbox';label.append(chk,document.createTextNode(' I have saved my recovery code'));const go=button(recover?'Back to sign in':'Enter my universe',()=>recover?authForm('login'):closeGate());go.disabled=true;chk.onchange=()=>go.disabled=!chk.checked;w.append(label,go);$('gtrack').append(w)}else closeGate()}catch(e){$('authFeedback').textContent=e.message;b.disabled=false}};form.elements.username.focus();
 }
 function userAvatar(u){if(u?.avatar?.startsWith('data:image/')){const i=el('img','personalAvatar');i.src=u.avatar;i.alt=u.name+' profile picture';return i}return el('span','av',u?.avatar||'🚀')}
-function updateMe(){$('me').replaceChildren(userAvatar(APP.user),el('span',null,APP.user?.name||'Sign in'));$('connection').textContent=APP.user?'● Synced · '+APP.user.role:'○ Guest exploration';$('dashboardBtn').hidden=!staffUser();$('adminBtn').hidden=APP.user?.role!=='admin';$('luStaffHeading').hidden=!staffUser();$('luUsers').hidden=APP.user?.role!=='admin';$('luSideRole').textContent=APP.user?(APP.user.name+' · '+APP.user.role):'Guest · Explorer';}
+function updateMe(){$('me').replaceChildren(userAvatar(APP.user),el('span',null,APP.user?.name||'Sign in'));$('connection').textContent=APP.user?'● Synced · '+APP.user.role:'○ Guest exploration';$('dashboardBtn').hidden=!staffUser();$('adminBtn').hidden=APP.user?.role!=='admin';$('luStaffHeading').hidden=!staffUser();$('luUsers').hidden=APP.user?.role!=='admin';$('luSideRole').textContent=APP.user?(APP.user.name+' · '+APP.user.role):'Guest · Explorer';luUpdateMode();luRefreshUnread();}
 async function signedIn(){CU=APP.user.username;updateMe();$('gradeFilter').value=APP.user.grade;await loadClasses();await renderLearning();await refreshProgress();await renderProjects();}
 async function loadClasses(){const prev=$('classFilter').value;APP.classes=APP.user?(await call('/api/classes')).classes:[];$('classFilter').replaceChildren(new Option('All my classes',''));APP.classes.filter(c=>c.grade===Number($('gradeFilter').value)).forEach(c=>$('classFilter').append(new Option(c.name,c.id)));if([...$('classFilter').options].some(o=>o.value===prev))$('classFilter').value=prev;}
 async function photoFile(f){if(!f.type.startsWith('image/'))throw new Error('Choose an image.');if(f.size>8000000)throw new Error('Choose a photo under 8 MB.');const image=await createImageBitmap(f);const canvas=document.createElement('canvas');canvas.width=canvas.height=160;const size=Math.min(image.width,image.height);canvas.getContext('2d').drawImage(image,(image.width-size)/2,(image.height-size)/2,size,size,0,0,160,160);const out=canvas.toDataURL('image/jpeg',.78);image.close();return out}
@@ -101,6 +101,99 @@ while(extra.firstChild)document.querySelector('main').append(extra.firstChild);
 const nav=el('div','row appnav');[['#scienceLab','🔬 Virtual labs'],['#quizResults','📊 Results'],['#gallery','🛠 Project gallery']].forEach(([href,title])=>{const a=el('a',null,title);a.href=href;nav.append(a)});$('missionControl').append(nav);
 for(let g=4;g<=12;g++)$('gradeFilter').append(new Option('Grade '+g,g));$('subjectFilter').append(new Option('All subjects','all'));D.forEach(s=>$('subjectFilter').append(new Option(s.en,s.id)));$('classFilter').append(new Option('All my classes',''));
 $('gradeFilter').onchange=handle(async()=>{await loadClasses();await renderLearning();await renderProjects()});$('subjectFilter').onchange=handle(renderLearning);$('classFilter').onchange=handle(async()=>{await renderLearning();await renderProjects()});$('me').onclick=profileTool;$('joinClass').onclick=joinTool;$('dashboardBtn').onclick=handle(teacherDashboard);$('adminBtn').onclick=handle(adminTool);$('luUsers').onclick=handle(usersTool);$('resultsBtn').onclick=$('allResults').onclick=resultsTool;$('addProject').onclick=handle(projectTool);
+
+/* School utilities — available in the top bar and right-hand menu */
+let luTeacherView=false;
+function luUpdateMode(){
+ if(!$('luRoleView'))return;
+ $('luRoleView').hidden=APP.user?.role!=='admin';
+ $('luRoleView').textContent=luTeacherView?'🔀 Switch to Admin View':'🔀 Switch to Teacher View';
+ // Viewing as a teacher changes the workspace presentation, never security permissions.
+ $('adminBtn').hidden=APP.user?.role!=='admin'||luTeacherView;
+ $('luUsers').hidden=APP.user?.role!=='admin'||luTeacherView;
+ $('luSideRole').textContent=APP.user?(APP.user.name+' · '+(APP.user.role==='admin'&&luTeacherView?'Teacher view (admin account)':APP.user.role)):'Guest · Explorer';
+}
+function luListMessage(title,detail,meta){
+ const card=el('article','lu-comms-item');card.append(el('strong',null,title));
+ if(detail)card.append(el('p','mut',detail));
+ if(meta)card.append(el('small',null,meta));return card;
+}
+function luSignInRequired(){if(!APP.user){openGate();return true}return false}
+async function luNotifications(){
+ if(luSignInRequired())return;
+ const w=modal('🔔 Notifications',true),r=await call('/api/comms/notifications');
+ const top=el('div','lu-comms-actions');top.append(button('Open messages',luMessages,true));if(APP.user.role==='admin')top.append(button('📣 Publish school announcement',luAnnounce,true));
+ w.append(top,el('h3',null,'Unread messages ('+r.unread+')'));
+ if(!r.messages.length)w.append(empty('No unread messages.'));
+ for(const m of r.messages){const item=luListMessage(m.subject,'From '+m.sender,new Date(m.created).toLocaleString());item.append(button('Open inbox',luMessages,true));w.append(item)}
+ w.append(el('h3',null,'School announcements'));
+ if(!r.announcements.length)w.append(empty('No announcements yet.'));
+ for(const a of r.announcements)w.append(luListMessage(a.title,a.body,new Date(a.created).toLocaleString()));
+ await luRefreshUnread(r.unread);
+}
+async function luRefreshUnread(forced){
+ if(!APP.user){$('luNotifyCount').hidden=true;return}
+ try{const n=forced===undefined?(await call('/api/comms/notifications')).unread:forced;const badge=$('luNotifyCount');badge.hidden=!n;badge.textContent=n>99?'99+':String(n)}catch(e){/* Keep notifications nonblocking when offline. */}
+}
+async function luAnnounce(){
+ if(APP.user?.role!=='admin')return toast('Admin access required.');
+ const w=modal('📣 New school announcement');
+ const f=el('form','appform');const title=el('input','field');title.placeholder='Announcement title';title.maxLength=100;title.required=true;const body=el('textarea','field');body.placeholder='Message for students and teachers';body.maxLength=1000;body.required=true;
+ const error=el('p','errorBox');const submit=el('button','btn','Publish announcement');submit.type='submit';
+ f.append(el('label',null,'Title'),title,el('label',null,'Message'),body,submit,error);
+ f.onsubmit=async e=>{e.preventDefault();try{await call('/api/comms/announce',{title:title.value,message:body.value});toast('Announcement published');await luNotifications()}catch(x){error.textContent=x.message}};
+ w.append(f);
+}
+async function luMessages(mode='inbox'){
+ if(luSignInRequired())return;
+ if(typeof mode!=='string')mode='inbox';
+ const w=modal('✉️ School messages',true);
+ const actions=el('div','lu-comms-actions');
+ actions.append(button('Inbox',()=>luMessages('inbox'),true),button('Sent',()=>luMessages('sent'),true),button('✍ Compose',luCompose,true));w.append(actions);
+ const r=await call('/api/comms/messages?mode='+encodeURIComponent(mode));
+ if(!r.messages.length)w.append(empty(mode==='sent'?'You have not sent any messages.':'Your inbox is empty.'));
+ for(const m of r.messages){
+  const item=luListMessage(m.subject,m.body,(mode==='sent'?'To ':'From ')+(m.contact_name||m.contact_username)+' · '+new Date(m.created).toLocaleString());
+  if(mode==='inbox'&&!m.read_at)item.append(button('Mark as read',async()=>{await call('/api/comms/read',{id:m.id});await luMessages('inbox');await luRefreshUnread()},true));
+  w.append(item);
+ }
+ if(mode==='inbox')await luRefreshUnread();
+}
+async function luCompose(isSupport=false){
+ if(luSignInRequired())return;
+ const w=modal(isSupport===true?'💬 Contact school support':'✍ New message');
+ const r=await call('/api/comms/contacts');
+ const contacts=isSupport===true?r.contacts.filter(c=>c.role==='admin'):r.contacts;
+ if(!contacts.length){w.append(empty('No authorized school contact is available yet.'));return}
+ const f=el('form','appform lu-comms-controls');
+ const target=el('select','field');for(const c of contacts)target.append(new Option(c.name+' (@'+c.username+') · '+c.role,c.id));
+ const subj=el('input','field');subj.maxLength=100;subj.placeholder='Subject';subj.required=true;subj.value=isSupport===true?'School support request':'';
+ const body=el('textarea','field');body.maxLength=1800;body.required=true;body.placeholder='Describe your message';
+ const error=el('p','errorBox'),send=el('button','btn','Send message');send.type='submit';
+ f.append(el('label',null,'Recipient'),target,el('label',null,'Subject'),subj,el('label',null,'Message'),body,send,error);
+ f.onsubmit=async e=>{e.preventDefault();send.disabled=true;try{await call('/api/comms/send',{recipient:target.value,subject:subj.value,message:body.value});toast('Message sent successfully');await luMessages('sent')}catch(err){error.textContent=err.message;send.disabled=false}};
+ w.append(f);
+}
+async function luSupport(){
+ if(luSignInRequired())return;
+ const w=modal('💬 Contact & support');
+ w.append(el('p','mut','Need help with your school account, class access, an assignment, or Learning Universe? Send a private message to a school administrator.'));
+ w.append(button('Contact administrator',()=>luCompose(true)));
+ w.append(button('Open my messages',luMessages,true));
+}
+function luSearch(){
+ const w=modal('🔎 Search Learning Universe',true);
+ const box=el('input','field');box.type='search';box.placeholder='Search pages, planets, missions and learning resources';box.setAttribute('aria-label','Search school');w.append(box);
+ const list=el('div','lu-comms-list lu-searchresults');w.append(list);
+ const pages=[['Home','#top'],['Mission Control','#missionControl'],['Planets','#planets'],['School Platforms','#platforms'],['Visual Education','#videos'],['Activities','#act'],['Badges','#ach'],['Virtual Labs','#scienceLab'],['Project Gallery','#gallery'],['Quiz Results','#quizResults']];
+ const pageMatches=()=>{list.replaceChildren();const q=box.value.trim().toLowerCase();if(!q)return list.append(el('p','mut','Type to find pages and grade-level learning resources.'));
+ const items=pages.map(([name,link])=>({title:name,description:'Website section',link})).concat((APP.content||[]).map(x=>({title:x.title,description:x.kind+' · Grade '+x.grade,link:'#missionControl'})));
+ const matches=items.filter(v=>(v.title+' '+v.description).toLowerCase().includes(q)).slice(0,35);if(!matches.length)list.append(empty('No matches found.'));
+ for(const item of matches){const a=el('a','lu-sidelink',item.title+' — '+item.description);a.href=item.link;a.style.color='var(--ink)';a.onclick=()=>closeOv();list.append(a)}
+ };
+ box.oninput=pageMatches;pageMatches();box.focus();
+}
+
 function luToggle(open){const side=$('luSidebar'),shade=$('luShade');if(!side||!shade)return;side.classList.toggle('is-open',open);side.setAttribute('aria-hidden',String(!open));shade.hidden=!open;$('luMenu').setAttribute('aria-expanded',String(open));if(open)$('luClose').focus();else $('luMenu').focus()}
 $('luMenu').onclick=()=>luToggle(true);
 $('luClose').onclick=()=>luToggle(false);
@@ -108,6 +201,9 @@ $('luShade').onclick=()=>luToggle(false);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('luSidebar').classList.contains('is-open'))luToggle(false)});
 $('luSidebar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.id==='luClose')return;luToggle(false);if(b.dataset.go==='home')window.scrollTo({top:0,behavior:'smooth'});if(b.dataset.go==='missions')$('missionControl').scrollIntoView({behavior:'smooth'})});
 $('luProfile').onclick=profileTool;
+$('luNotify').onclick=handle(luNotifications);$('luInbox').onclick=handle(luMessages);$('luSearch').onclick=luSearch;
+$('luNotifications').onclick=handle(luNotifications);$('luMessages').onclick=handle(luMessages);$('luSupport').onclick=handle(luSupport);
+$('luRoleView').onclick=()=>{luTeacherView=!luTeacherView;luUpdateMode();toast(luTeacherView?'Teacher view enabled':'Administrator view enabled');};
 $('gbox').onclick=()=>{$('gbox').animate([{scale:1},{scale:1.05},{scale:1}],{duration:450});boom()};$('gtag').textContent='EXPLORE · CREATE · ACHIEVE';
 (async()=>{try{APP.user=(await call('/api/me')).user;updateMe();if(APP.user){await signedIn();closeGate()}else{await loadClasses();await renderLearning();await refreshProgress();await renderProjects();openGate()}}catch(e){$('connection').textContent='Server connection unavailable';$('recommendation').textContent='Open this application through its server URL. Shared accounts and results need the backend.';updateMe();openGate();$('authFeedback').textContent=e.message}})();
 
