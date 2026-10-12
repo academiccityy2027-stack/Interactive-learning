@@ -136,7 +136,7 @@ header .bar{flex-wrap:wrap}
 .lu-class-tile{display:flex;flex-direction:column;gap:8px;background:#ffffff1c;border:1px solid #ffffff42;border-radius:15px;padding:16px}
 .lu-class-tile strong{font-size:17px;color:#fff}.lu-class-tile small{color:#bce7ff;font-weight:900;letter-spacing:1px}
 .lu-class-tile .btn{align-self:start;color:#133a74;background:white}
-body[data-school-view="admin"] main>.hero,body[data-school-view="teacher"] main>.hero{display:none}
+/* Interactive planets visible for both teacher and admin. */
 body[data-school-view="admin"] #missionControl,body[data-school-view="teacher"] #missionControl{margin-top:22px}
 @media(max-width:900px){.lu-rolelandingactions{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.lu-rolelanding{margin:12px 10px 0;padding:23px 17px}.lu-rolelandingactions{grid-template-columns:1fr 1fr;gap:8px}.lu-rolelandingactions .btn{padding:12px;font-size:12px;min-height:72px}.lu-class-grid{grid-template-columns:repeat(2,1fr)}}
