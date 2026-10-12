@@ -1,0 +1,27 @@
+name: Teacher directory release validation
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [production-teacher-directory]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Worker JavaScript syntax
+        run: node --check index.js
+      - name: Validate Wrangler config and isolated D1 preview
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const conf = JSON.parse(fs.readFileSync('wrangler.jsonc', 'utf8'));
+          if (conf.main !== 'index.js') throw Error('Unexpected entrypoint');
+          const prod = conf.d1_databases?.find(x => x.binding === 'DB');
+          const preview = conf.previews?.d1_databases?.find(x => x.binding === 'DB');
+          if (!prod || !preview) throw Error('Missing D1 binding');
+          if (prod.database_id === preview.database_id) throw Error('Preview shares production database');
+          console.log('Worker entrypoint valid; preview D1 is isolated');
+          NODE
