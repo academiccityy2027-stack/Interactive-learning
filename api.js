@@ -221,6 +221,19 @@ export async function api(req,env,SEEDS){
   auth();await db.prepare("CREATE TABLE IF NOT EXISTS lu_support_tickets(id TEXT PRIMARY KEY,author_id TEXT NOT NULL,subject TEXT NOT NULL,details TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'open',created TEXT NOT NULL,updated TEXT NOT NULL)").run();
   return reply({tickets:await all('SELECT id,subject,details,status,created,updated FROM lu_support_tickets WHERE author_id=? ORDER BY created DESC LIMIT 80',user.id)});
  }
+ // Teacher accounts are created only by a signed-in school administrator.
+ if(path==='/api/admin/create-teacher'&&method==='POST'){
+  admin();await limit('admin-create-teacher:'+user.id,20,3600);
+  const employee=text(body.employeeNumber,20),name=text(body.name,50),p=pass(body.password),g=grade(body.grade||7);
+  if(!/^[0-9]{1,20}$/.test(employee))fail(400,'Use a valid numeric employee number.');
+  if(!name)fail(400,'Enter the teacher full name.');
+  const n=username('teacher'+employee);
+  if(await one('SELECT 1 FROM users WHERE username=? OR employee_number=?',n,employee))fail(409,'This employee number or Teacher username is already registered.');
+  const id=random(16),code=random(16);
+  await run('INSERT INTO users(id,username,name,grade,avatar,role,password,recovery,created,employee_number) VALUES(?,?,?,?,?,?,?,?,?,?)',id,n,name,g,'👨‍🏫','teacher',await hash(p),await digest(code),stamp(),employee);
+  await audit('create_teacher',id);
+  return reply({user:safeUser(await one('SELECT * FROM users WHERE id=?',id)),employeeNumber:employee,recoveryCode:code},201);
+ }
  if(path==='/api/admin/users'&&method==='GET'){admin();return reply({users:(await all('SELECT * FROM users ORDER BY username LIMIT 500')).map(u=>({...safeUser(u),employeeNumber:u.employee_number||null,created:u.created||null}))});}
  if(path==='/api/admin/employee'&&method==='POST'){
   admin();const employee=text(body.employeeNumber,20),id=text(body.id,100);
