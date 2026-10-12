@@ -28,3 +28,46 @@
 .lu-userinfo{display:grid;gap:4px;min-width:160px}.lu-userinfo strong{font-size:15px}.lu-userinfo small{font-size:12px}
 .lu-useractions{display:flex;gap:7px;flex-wrap:wrap}.lu-useractions .btn{font-size:12px;padding:9px 12px}
 @media(max-width:650px){.lu-usercard{align-items:stretch}.lu-useractions{width:100%}.lu-useractions .btn{flex:1}}
+
+/* Immersive landing and Mission Control refresh — October 2026 */
+body{background:radial-gradient(ellipse at 75% 0%,color-mix(in srgb,var(--bg2) 65%,#67c5de 35%),var(--bg) 58%) fixed}
+.hero{position:relative;isolation:isolate;max-width:1340px;min-height:min(680px,78vh);margin:22px auto 0;padding:clamp(30px,4vw,60px);grid-template-columns:minmax(0,1fr) minmax(340px,.96fr);gap:24px;border:1px solid color-mix(in srgb,var(--line) 75%,#7adfff);border-radius:32px;background:linear-gradient(122deg,color-mix(in srgb,var(--card) 82%,#d6e6ff 18%),color-mix(in srgb,var(--card) 67%,#c1dcff 33%));box-shadow:0 25px 90px rgba(13,35,94,.1);overflow:hidden}
+.hero:before{content:"";position:absolute;inset:-70px -60px auto auto;width:430px;height:430px;pointer-events:none;border-radius:50%;background:radial-gradient(circle,rgba(77,164,255,.17),transparent 72%);z-index:-1}
+.lu-herocopy{position:relative;z-index:2}
+.lu-eyebrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:var(--mut);font-size:10px;font-weight:900;letter-spacing:1.1px}
+.lu-live-dot{width:9px;height:9px;flex:none;border-radius:50%;background:#10b981;box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+.lu-orbit-label{padding:5px 9px;border:1px solid var(--line);border-radius:40px;color:var(--acc)}
+.hero h1{font-size:clamp(38px,4.2vw,70px);max-width:680px;line-height:1.08;margin:17px 0 14px;letter-spacing:-2px}
+.hero h1 span{background:linear-gradient(95deg,#0aa6aa,#3f67eb,#8c5fee);background-clip:text;-webkit-background-clip:text;color:transparent}
+.lu-hero-credit{display:inline-flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--mut);margin:14px 0}
+.lu-hero-credit b{color:var(--ink)}
+.lu-hero-actions{gap:10px;margin:14px 0}.lu-hero-actions .btn{border-radius:13px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.lu-launch{background:linear-gradient(110deg,#0b559d,#0f81ba);color:white;box-shadow:0 8px 22px rgba(24,85,172,.2)}
+.lu-orbitwrap{min-width:0;align-self:center;position:relative}.lu-orbit-caption{display:flex;justify-content:space-between;gap:8px;align-items:center;color:var(--mut);font-size:10px;font-weight:900;letter-spacing:1px;padding:0 2px}.lu-orbit-caption small{font-size:11px;font-weight:600;letter-spacing:0}
+.lu-orbitwrap .orbit{max-width:560px}
+.lu-hero-stats{margin-top:24px;max-width:520px}.lu-hero-stats div{padding:15px 17px;border-radius:15px;background:var(--card);box-shadow:0 5px 15px rgba(14,45,113,.04)}.lu-hero-stats b{font-size:25px}
+#missionControl.mission{max-width:1340px;margin-top:28px;padding:clamp(20px,3vw,38px);background:linear-gradient(150deg,color-mix(in srgb,var(--card) 78%,#d4eaff 22%),color-mix(in srgb,var(--card) 94%,transparent));box-shadow:0 14px 60px rgba(18,46,110,.08);border-radius:29px}
+.lu-missionhead{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.lu-section-number{display:block;font-size:10px;font-weight:900;letter-spacing:1.6px;color:var(--acc2);margin-bottom:10px}
+.lu-missionhead h2{font-size:clamp(29px,3.5vw,42px);letter-spacing:-1.4px;margin:2px 0 5px}
+.lu-missionhead h2 span,.lu-nexthead h3 span{background:linear-gradient(90deg,#008fbb,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lu-missionhead p{margin:2px 0 0;max-width:540px}.lu-missionhead>.pill{margin-top:12px}
+.lu-panel-label{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0 10px}
+.lu-panel-label span{font-weight:900;font-size:11px;letter-spacing:1px}.lu-panel-label small{color:var(--mut);font-size:11px}
+.lu-filterpanel{padding:14px 18px;border-radius:19px;background:var(--card);border:1px solid var(--line)}
+.lu-filterpanel .filterbar{margin:0;gap:12px}.lu-filterpanel .filterbar label{flex:1 1 150px;font-size:11px;color:var(--mut);letter-spacing:.3px}
+.lu-filterpanel .filterbar .field{width:100%;min-width:0;border-radius:11px;margin-top:6px}
+.lu-filterpanel .lu-menubtn,.lu-filterpanel #joinClass{align-self:end}
+.lu-progressheading{margin-top:26px}
+#missionControl .flightStats{gap:14px}
+#missionControl .flightStats>div{min-height:106px;padding:22px 19px;grid-template-columns:44px 1fr;align-content:center;gap:1px 10px;background:var(--card);border:1px solid var(--line);box-shadow:0 8px 26px rgba(0,40,100,.04)}
+#missionControl .flightStats span{font-size:31px}
+#missionControl .flightStats b{font-size:clamp(22px,2vw,30px);line-height:1.14}
+#missionControl .flightStats small{font-size:12px}
+.lu-awards{margin-top:14px}
+.lu-recommend{margin:18px 0 28px;padding:14px 18px;display:flex;align-items:center;gap:12px;background:rgba(16,181,163,.07);border:1px solid rgba(16,181,163,.2);border-radius:14px}.lu-recommendicon{font-size:25px;color:var(--acc2)}.lu-recommend p{margin:0}
+.lu-nexthead{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:4px 0 18px;padding-top:22px;border-top:1px solid var(--line)}
+.lu-nexthead h3{font-size:clamp(24px,3vw,34px);margin:0;letter-spacing:-.7px}.lu-nexthead p{margin:4px 0 0}
+.lu-missioncards{gap:16px}.lu-missioncards>*{transition:transform .2s ease,box-shadow .2s ease}.lu-missioncards>*:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(21,64,136,.13)}
+@media(max-width:950px){.hero{grid-template-columns:1fr;min-height:0;padding:26px}.lu-orbitwrap{width:min(100%,560px);margin:auto}.lu-orbitwrap .orbit{width:100%}.lu-herocopy{max-width:720px}}
+@media(max-width:650px){.hero{margin:13px 10px 0;padding:23px 17px;border-radius:24px;gap:10px}.hero h1{font-size:clamp(35px,9vw,50px);letter-spacing:-1.3px}.lu-hero-actions .btn{flex:1 1 40%}.lu-orbit-caption{font-size:9px}.lu-orbit-caption small{font-size:10px}.lu-hero-stats{gap:7px}.lu-hero-stats div{padding:10px}.lu-hero-stats b{font-size:21px}#missionControl.mission{margin-top:18px;padding:22px 14px}.lu-filterpanel{padding:13px}.lu-filterpanel .filterbar label{flex:1 1 120px}.lu-filterpanel .lu-menubtn{flex:1}#missionControl .flightStats{gap:7px}#missionControl .flightStats>div{padding:12px 8px;display:flex;flex-direction:column;min-height:105px}#missionControl .flightStats span{font-size:24px}#missionControl .flightStats b{font-size:20px}#missionControl .flightStats small{font-size:10px}}
