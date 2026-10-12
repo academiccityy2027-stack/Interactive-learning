@@ -187,10 +187,47 @@ html{overflow-x:hidden}.hero{overflow-x:clip}.nv a{white-space:nowrap}.logo{widt
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .mission{padding:24px;border-radius:26px;border:1px solid var(--line);background:linear-gradient(135deg,rgba(38,88,177,.2),rgba(83,47,146,.15));box-shadow:0 18px 70px rgba(0,0,0,.12)}.mission>.row:first-child{justify-content:space-between}.filterbar{margin:18px 0}.filterbar label{font-size:12px;font-weight:bold;min-width:125px}.filterbar .field{display:block;margin-top:4px}.pill{display:inline-flex;gap:5px;align-items:center;padding:5px 11px;border-radius:30px;font-size:11px;font-weight:bold;color:var(--acc2);background:rgba(15,181,163,.1);border:1px solid rgba(15,181,163,.24)}.flightStats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.flightStats>div{display:grid;grid-template-columns:36px 1fr;background:var(--card);border:1px solid var(--line);padding:15px;border-radius:17px}.flightStats span{grid-row:span 2;font-size:25px}.flightStats b{font-size:22px}.flightStats small{color:var(--mut)}.appcard{padding:18px;border-radius:18px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}.appcard.recommended{border-color:var(--acc2)}.appcard h3{margin:0;font-size:16px}.appcard p{margin:0;font-size:13px;color:var(--mut)}.appcard .row{margin-top:auto}.providerLogo{width:36px;height:36px;object-fit:contain;display:block;border-radius:9px;background:#fff;padding:4px}.lk>.providerLogo,.act>.providerLogo{margin-bottom:8px}.projectImage{width:100%;height:180px;object-fit:cover;border-radius:12px}.appgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.appform{display:grid;gap:12px}.appform label{display:grid;gap:4px;font-size:13px}.appform .field{margin-top:3px}.sheet.wide{width:min(1050px,100%)}.tablewrap{overflow:auto;margin:16px 0}table.report{width:100%;border-collapse:collapse;font-size:12px}table.report th,table.report td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}table.report th{color:var(--mut);font-size:11px;white-space:nowrap}.scoreBadge{display:grid;gap:3px;padding:16px;border-radius:16px;background:linear-gradient(120deg,rgba(245,179,1,.13),var(--card));border:1px solid var(--line)}.scoreBadge b{font-size:18px}.empty{padding:26px;border:1px dashed var(--line);border-radius:18px;color:var(--mut);font-size:13px}.questionBox{border:1px solid var(--line);border-radius:16px;padding:15px}.answerOption{display:flex;gap:9px;align-items:center;margin:8px 0;padding:10px;border-radius:10px;background:var(--card)}.errorBox{color:#fb7185;min-height:22px;font-size:13px}.successBox{color:#34d399}.auth .errorBox{color:#bc2442}.appnav{margin:20px 0 8px}.appnav a{color:var(--acc);font-size:12px;font-weight:bold}.gtrack{display:block;transform:none!important}.gcard{min-height:470px}.auth .field{padding:12px!important;height:auto!important}.auth select.field{background:#f3f6fc!important;color:#0a2a5e!important}.auth .btn{background:#1456a8;color:#fff}.auth .btn.o{background:#eaf0fb;color:#0a2a5e}.auth .mut{color:#5a6c92!important}.gcard #authFeedback{overflow-wrap:anywhere}.recovery{background:#eaf0ff;color:#0a2a5e;border-radius:12px;padding:15px;font:700 17px monospace;overflow-wrap:anywhere;user-select:all}.personalAvatar{width:65px;height:65px;border-radius:50%;object-fit:cover}button:disabled{opacity:.55;cursor:default}@media(max-width:650px){.mission{padding:18px;margin:20px 10px}.flightStats{gap:6px}.flightStats>div{padding:10px;display:flex;flex-direction:column}.flightStats b{font-size:18px}.flightStats small{font-size:10px}.filterbar label{flex:1}.sheet{padding:18px}.dock{overflow-x:auto}.sheet.wide{width:100%}}@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;scroll-behavior:auto!important;transition:none!important}}
 
+
+/* Left-side Learning Universe navigation */
+.side-toggle{display:none;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:var(--card);color:var(--ink);font-weight:800;font-size:13px;flex:none}
+.side-nav{position:fixed;z-index:25;left:14px;top:84px;bottom:16px;width:224px;padding:16px 12px;overflow-y:auto;border:1px solid var(--line);border-radius:22px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(18px);box-shadow:0 18px 55px rgba(0,0,0,.16);display:flex;flex-direction:column;gap:7px}
+.side-nav .side-title{padding:2px 10px 10px;color:var(--mut);font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}
+.side-nav a{display:flex;align-items:center;gap:11px;min-height:44px;padding:10px 12px;border:1px solid transparent;border-radius:13px;color:var(--ink);text-decoration:none;font-size:13px;font-weight:800;transition:background .18s,border-color .18s,transform .18s}
+.side-nav a:hover{background:var(--card);border-color:var(--line);transform:translateX(2px)}
+.side-nav a.active{background:linear-gradient(110deg,rgba(15,181,163,.18),rgba(84,72,232,.14));border-color:color-mix(in srgb,var(--acc2) 45%,var(--line));color:var(--acc2)}
+.side-nav .side-planet{background:linear-gradient(110deg,rgba(15,181,163,.12),rgba(84,72,232,.12));border-color:var(--line)}
+.side-nav .side-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid var(--line);color:var(--mut);font-size:11px;line-height:1.5}
+main{margin-left:250px}
+main>.sec,main>.hero{max-width:1240px}
+[id]{scroll-margin-top:90px}
+@media(max-width:980px){
+ .side-toggle{display:inline-flex}
+ .nv{display:none}
+ .xp{margin-inline-start:auto}
+ main{margin-left:0}
+ .side-nav{top:calc(70px + env(safe-area-inset-top,0px));left:0;bottom:0;width:min(300px,86vw);border-radius:0 22px 22px 0;transform:translateX(-105%);transition:transform .22s ease;z-index:45}
+ .side-nav.open{transform:translateX(0)}
+ body.side-menu-open::after{content:"";position:fixed;inset:0;z-index:40;background:rgba(3,6,20,.42);backdrop-filter:blur(2px)}
+ .bar{gap:8px}
+}
+@media(max-width:520px){.xp{display:none}.side-toggle{padding:8px 10px}.side-nav{padding-top:20px}}
+@media(prefers-reduced-motion:reduce){.side-nav,.side-nav a{transition:none!important}}
+
 </style>
 </head>
 <body>
-<header><div class="bar"><div class="logo"><svg viewBox="0 0 360 150" role="img" aria-label="Academic City Schools emblem"><defs><linearGradient id="gR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ee4a35"/><stop offset="1" stop-color="#951410"/></linearGradient><linearGradient id="gY" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd966"/><stop offset="1" stop-color="#d4930a"/></linearGradient><linearGradient id="gN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2748a8"/><stop offset="1" stop-color="#091c58"/></linearGradient><linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c6ecf8"/><stop offset="1" stop-color="#72bfdc"/></linearGradient><linearGradient id="gG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c5ccd5"/><stop offset="1" stop-color="#616a76"/></linearGradient></defs><path fill="url(#gR)" d="M6 5C16 52 48 92 90 117C58 88 22 48 6 5Z"/><path fill="url(#gY)" d="M50 47C66 92 112 128 168 144L110 118C84 100 62 78 50 47Z"/><path fill="url(#gN)" d="M85 57C112 108 160 134 202 141L230 129C168 124 118 100 85 57Z"/><path fill="url(#gB)" d="M145 68C198 100 255 100 299 85L250 134C214 118 176 96 145 68Z"/><path fill="url(#gG)" d="M183 60C260 56 330 36 360 3C340 38 322 64 299 86C262 76 224 66 183 60Z"/></svg></div><div class="brand"><b>Academic City Schools — International Section</b><small>Learning Universe</small></div><nav class="nv" aria-label="Sections"><a href="#top">Home</a><a href="#planets">Planets</a><a href="#platforms">Platforms</a><a href="#videos">Visual Ed</a><a href="#act">Activities</a><a href="#ach">Badges</a></nav><div class="xp"><span id="lv">Lv 1</span><div class="xb"><i id="xf"></i></div><span id="xpt">0 XP</span></div><button class="me" id="me" aria-label="Open profile"></button></div></header>
+<header><div class="bar"><div class="logo"><svg viewBox="0 0 360 150" role="img" aria-label="Academic City Schools emblem"><defs><linearGradient id="gR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ee4a35"/><stop offset="1" stop-color="#951410"/></linearGradient><linearGradient id="gY" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd966"/><stop offset="1" stop-color="#d4930a"/></linearGradient><linearGradient id="gN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2748a8"/><stop offset="1" stop-color="#091c58"/></linearGradient><linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c6ecf8"/><stop offset="1" stop-color="#72bfdc"/></linearGradient><linearGradient id="gG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c5ccd5"/><stop offset="1" stop-color="#616a76"/></linearGradient></defs><path fill="url(#gR)" d="M6 5C16 52 48 92 90 117C58 88 22 48 6 5Z"/><path fill="url(#gY)" d="M50 47C66 92 112 128 168 144L110 118C84 100 62 78 50 47Z"/><path fill="url(#gN)" d="M85 57C112 108 160 134 202 141L230 129C168 124 118 100 85 57Z"/><path fill="url(#gB)" d="M145 68C198 100 255 100 299 85L250 134C214 118 176 96 145 68Z"/><path fill="url(#gG)" d="M183 60C260 56 330 36 360 3C340 38 322 64 299 86C262 76 224 66 183 60Z"/></svg></div><div class="brand"><b>Academic City Schools — International Section</b><small>Learning Universe</small></div><button class="side-toggle" id="sideMenuToggle" type="button" aria-controls="sideMenu" aria-expanded="false" aria-label="Open navigation menu">☰ <span>Menu</span></button><nav class="nv" aria-label="Sections"><a href="#top">Home</a><a href="#planets">Planets</a><a href="#platforms">Platforms</a><a href="#videos">Visual Ed</a><a href="#act">Activities</a><a href="#ach">Badges</a></nav><div class="xp"><span id="lv">Lv 1</span><div class="xb"><i id="xf"></i></div><span id="xpt">0 XP</span></div><button class="me" id="me" aria-label="Open profile"></button></div></header>
+<aside class="side-nav" id="sideMenu" aria-label="Learning Universe sidebar">
+ <div class="side-title">Explore your universe</div>
+ <a class="side-planet active" href="#planets" data-side-link><span aria-hidden="true">🪐</span> Planets</a>
+ <a href="#missionControl" data-side-link><span aria-hidden="true">🏠</span> Dashboard</a>
+ <a href="#platforms" data-side-link><span aria-hidden="true">📚</span> Resources</a>
+ <a href="#scienceLab" data-side-link><span aria-hidden="true">🔬</span> Virtual Labs</a>
+ <a href="#planets" data-side-link><span aria-hidden="true">🧠</span> Quizzes</a>
+ <a href="#gallery" data-side-link><span aria-hidden="true">🛠️</span> Projects</a>
+ <a href="#quizResults" data-side-link><span aria-hidden="true">📊</span> Reports</a>
+ <div class="side-foot"><strong>Academic City Schools</strong><br>International Section<br>Learning Universe</div>
+</aside>
 <main><section class="sec mission" id="missionControl">
  <div class="row"><div><div class="kick">YOUR SCHOOL · YOUR ORBIT</div><h2>Mission Control</h2></div><span id="connection" class="pill">Connecting…</span></div>
  <div class="row filterbar"><label>Grade <select id="gradeFilter" class="field" aria-label="Grade"></select></label><label>Subject <select id="subjectFilter" class="field" aria-label="Subject"></select></label><label>Class <select id="classFilter" class="field" aria-label="Class"></select></label><button class="btn o" id="joinClass">🔑 Join a class</button><button class="btn o" id="dashboardBtn" hidden>🧑‍🏫 Teacher dashboard</button><button class="btn o" id="adminBtn" hidden>🛡 Administrator</button><button class="btn o" id="resultsBtn">📊 My results</button></div>
@@ -416,5 +453,23 @@ hud();
 logoCards(document);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)logoCards(n)}))).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+
+<script>
+(function(){
+ const menu=document.getElementById('sideMenu');
+ const toggle=document.getElementById('sideMenuToggle');
+ if(!menu||!toggle)return;
+ const links=Array.from(menu.querySelectorAll('[data-side-link]'));
+ function closeMenu(){menu.classList.remove('open');document.body.classList.remove('side-menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Open navigation menu')}
+ function openMenu(){menu.classList.add('open');document.body.classList.add('side-menu-open');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Close navigation menu')}
+ toggle.addEventListener('click',function(){menu.classList.contains('open')?closeMenu():openMenu()});
+ links.forEach(function(link){link.addEventListener('click',function(){links.forEach(function(item){item.classList.remove('active')});link.classList.add('active');if(window.matchMedia('(max-width: 980px)').matches)closeMenu()})});
+ document.addEventListener('keydown',function(event){if(event.key==='Escape')closeMenu()});
+ document.body.addEventListener('click',function(event){if(document.body.classList.contains('side-menu-open')&&!menu.contains(event.target)&&!toggle.contains(event.target))closeMenu()});
+ function setActiveFromHash(){const hash=location.hash||'#planets';links.forEach(function(link){link.classList.toggle('active',link.getAttribute('href')===hash)})}
+ window.addEventListener('hashchange',setActiveFromHash);setActiveFromHash();
+})();
+</script>
+
 </body>
 </html>
