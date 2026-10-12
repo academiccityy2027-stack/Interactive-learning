@@ -173,11 +173,11 @@ export async function api(req,env,SEEDS){
   await db.prepare("CREATE TABLE IF NOT EXISTS lu_recognition(id TEXT PRIMARY KEY,student_id TEXT NOT NULL,awarded_by TEXT NOT NULL,title TEXT NOT NULL,note TEXT NOT NULL,created TEXT NOT NULL)").run();
  }
  if(path==='/api/admin/center/overview'&&method==='GET'){
-  const date=t=>{const v=uurl.searchParams.get(t);if(!v)return t==='start'?'1970-01-01':'9999-12-31';if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(v))fail(400,'Invalid date.');return v};
+  const date=t=>{const v=uurl.searchParams.get(t);if(!v)return t==='start'?'1970-01-01':'9999-12-31';if(!/^\d{4}-\d{2}-\d{2}$/.test(v))fail(400,'Invalid date.');return v};
   const start=date('start'),end=date('end');if(start>end)fail(400,'Start date must be before end date.');
   const stats=await one("SELECT (SELECT COUNT(*) FROM users) users,(SELECT COUNT(*) FROM users WHERE role='teacher') teachers,(SELECT COUNT(*) FROM users WHERE role='student') students,(SELECT COUNT(*) FROM classes) classes,(SELECT COUNT(*) FROM results WHERE substr(created,1,10)>=? AND substr(created,1,10)<=?) submissions,(SELECT COUNT(DISTINCT user_id) FROM results WHERE substr(created,1,10)>=? AND substr(created,1,10)<=?) active_learners,(SELECT COUNT(*) FROM lu_support_tickets WHERE status<>'resolved') open_tickets",start,end,start,end);
   const classes=await all('SELECT c.id,c.name,c.grade,u.name teacher,(SELECT COUNT(*) FROM memberships m WHERE m.class_id=c.id) students FROM classes c LEFT JOIN users u ON u.id=c.teacher_id ORDER BY c.grade,c.name LIMIT 500');
-  const teachers=await all("SELECT u.id,u.name,u.username,COUNT(DISTINCT c.id) classes,COUNT(DISTINCT ct.id) published_resources,COUNT(DISTINCT r.id) student_attempts FROM users u LEFT JOIN classes c ON c.teacher_id=u.id LEFT JOIN content ct ON ct.owner_id=u.id LEFT JOIN results r ON r.class_id=c.id AND substr(r.created,1,10)>=? AND substr(r.created,1,10)<=? WHERE u.role IN ('teacher','admin') GROUP BY u.id ORDER BY published_resources DESC,student_attempts DESC,u.name LIMIT 200",start,end);
+  const teachers=await all("SELECT u.id,u.name,u.username,(SELECT COUNT(*) FROM classes c WHERE c.teacher_id=u.id) classes,(SELECT COUNT(*) FROM content ct WHERE ct.owner_id=u.id) published_resources,(SELECT COUNT(*) FROM results r JOIN classes c ON c.id=r.class_id WHERE c.teacher_id=u.id AND substr(r.created,1,10)>=? AND substr(r.created,1,10)<=?) student_attempts FROM users u WHERE u.role IN ('teacher','admin') ORDER BY published_resources DESC,student_attempts DESC,u.name LIMIT 200",start,end);
   const resultRows=await all("SELECT r.user_id,r.content_id,r.class_id,r.grade,r.score,r.total,r.created,u.name student FROM results r JOIN users u ON u.id=r.user_id WHERE substr(r.created,1,10)>=? AND substr(r.created,1,10)<=? ORDER BY r.created DESC LIMIT 7000",start,end);
   const best=new Map();for(const r of resultRows){if(r.total<=0)continue;const key=r.user_id+':'+r.content_id;const previous=best.get(key);if(!previous||r.score/r.total>previous.score/previous.total)best.set(key,r)}
   const classAgg=new Map(classes.map(c=>[c.id,{id:c.id,name:c.name,grade:c.grade,teacher:c.teacher,students:c.students,completed:0,assessed:0,points:0}]));
@@ -189,11 +189,12 @@ export async function api(req,env,SEEDS){
  }
  if(path==='/api/admin/center/report'&&method==='GET'){
   const start=uurl.searchParams.get('start')||'1970-01-01',end=uurl.searchParams.get('end')||'9999-12-31',cid=uurl.searchParams.get('class')||'';
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(start)||!/^\\d{4}-\\d{2}-\\d{2}$/.test(end)||start>end)fail(400,'Invalid report dates.');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||start>end)fail(400,'Invalid report dates.');
   const allRows=await all("SELECT u.name student,u.username,r.grade,c.name classroom,t.name teacher,r.subject,r.title,r.score,r.total,r.created FROM results r JOIN users u ON u.id=r.user_id LEFT JOIN classes c ON c.id=r.class_id LEFT JOIN users t ON t.id=c.teacher_id WHERE substr(r.created,1,10)>=? AND substr(r.created,1,10)<=? AND (?='' OR r.class_id=?) ORDER BY r.created DESC LIMIT 10000",start,end,cid,cid);
   const rows=[['Student','Username','Grade','Class','Teacher','Subject','Assessment','Score','Total','Percentage','Submitted (UTC)'],...allRows.filter(r=>r.total>0).map(r=>[r.student,r.username,r.grade,r.classroom||'',r.teacher||'',r.subject,r.title,r.score,r.total,Math.round(r.score/r.total*100),r.created])];
   const format=uurl.searchParams.get('format');if(format==='xlsx')return new Response(makeXlsx(rows),{headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','Content-Disposition':'attachment; filename="learning-universe-school-report.xlsx"','Cache-Control':'no-store'}});
-  if(format==='csv'){const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replaceAll('"','""').replace(/^[=+\\-@]/,'\u0027 if(path==='/api/admin/users'&&method==='GET')')+'"').join(',')).join('\\r\\n');return new Response(csv,{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="learning-universe-school-report.csv"','Cache-Control':'no-store'}})}
+  if(format==='csv'){const quote=v=>{const raw=String(v??'');const safe=/^[=+@-]/.test(raw)?String.fromCharCode(39)+raw:raw;return '"'+safe.replaceAll('"','""')+'"'};const csv=rows.map(row=>row.map(quote).join(',')).join('\r\n');return new Response(csv,{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="learning-universe-school-report.csv"','Cache-Control':'no-store'}})}
+
   return reply({rows:rows.slice(0,501),total:rows.length-1,truncated:allRows.length===10000});
  }
  if(path==='/api/admin/center/ticket-status'&&method==='POST'){
