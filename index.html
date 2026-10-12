@@ -406,6 +406,56 @@ $('gbox').onclick=()=>{$('gbox').animate([{scale:1},{scale:1.05},{scale:1}],{dur
 
 async function renderAwards(){const g=$('classAwards');g.replaceChildren();if(!APP.user)return;const cid=$('classFilter').value||APP.classes.find(c=>c.grade===Number($('gradeFilter').value))?.id;if(!cid){g.append(empty('🚀 Most active · 🏆 Highest performance — join a class to view its achievement icons.'));return}const r=await call('/api/leaderboard?class='+encodeURIComponent(cid));const active=el('div','scoreBadge');active.append(el('span',null,'🚀 Most active'),el('b',null,r.mostActive?.name||'Awaiting completed tasks'),el('small','mut',r.mostActive?r.mostActive.completed+' distinct tasks passed':'Measured by assessed completion, not logins'));const high=el('div','scoreBadge');high.append(el('span',null,'🏆 Highest performance'),el('b',null,r.highestPerformance?.name||'Awaiting 3 assessed tasks'),el('small','mut',r.highestPerformance?r.highestPerformance.score+'% best-score average':'At least 3 assessed tasks required'));g.append(active,high)}
 
+// Student dashboard: read-only views of existing account, assessed results and grade-matched content.
+function favoriteKey(){return 'lu-favorites:'+String(APP.user?.username||'guest')}
+function readFavorites(){try{return JSON.parse(localStorage.getItem(favoriteKey())||'[]').filter(x=>typeof x==='string')}catch(e){return []}}
+function saveFavorites(items){try{localStorage.setItem(favoriteKey(),JSON.stringify([...new Set(items)].slice(0,100)))}catch(e){toast('Favorites could not be saved on this device.')}}
+function toggleFavorite(id){const items=readFavorites();saveFavorites(items.includes(String(id))?items.filter(x=>x!==String(id)):[...items,String(id)]);renderStudentDashboard()}
+function studentDashboardCard(c,isFav){const a=el('article','appcard');a.append(el('span','pill',c.kind+' · Grade '+c.grade),el('h3',null,c.title),el('p',null,c.description||'Explore this learning resource.'));const row=el('div','row');row.append(button(isFav?'★ Remove favorite':'☆ Add favorite',()=>toggleFavorite(c.id),true));if(c.url){const link=el('a','btn o',c.kind==='video'?'▶ Watch video':'Open resource ↗');link.href=c.url;link.target='_blank';link.rel='noopener noreferrer';row.append(link)}if(c.questions?.length)row.append(button('Start activity',()=>assess(c)));a.append(row);return a}
+function renderStudentDashboard(){
+ const root=$('studentDashboardContent');if(!root)return;root.replaceChildren();
+ if(!APP.user){root.append(empty('Sign in with your existing school username and password to view your personal dashboard.'));return}
+ const results=Array.isArray(APP.results)?APP.results:[],grade=Number(APP.user.grade||$('gradeFilter').value);
+ const own=results.filter(r=>Number(r.grade)===grade);
+ const best={};own.forEach(r=>{if(!best[r.content_id]||r.score/r.total>best[r.content_id].score/best[r.content_id].total)best[r.content_id]=r});
+ const bestResults=Object.values(best),avg=bestResults.length?Math.round(bestResults.reduce((n,r)=>n+(r.total? r.score/r.total:0),0)/bestResults.length*100):null;
+ const stats=el('div','appgrid');
+ [[String(grade),'Your grade'],[String(bestResults.length),'Assessed activities'],[avg===null?'—':avg+'%','Average best score'],[String(P?.xp||0),'Learning XP']].forEach(([v,l])=>{const c=el('div','scoreBadge');c.append(el('span','mut',l),el('b',null,v));stats.append(c)});
+ root.append(stats);
+ const badges=el('div','appgrid');
+ const awards=[
+  {ok:bestResults.length>=1,icon:'🚀',name:'First mission',desc:'Complete your first assessed activity'},
+  {ok:bestResults.length>=5,icon:'🧭',name:'Explorer',desc:'Complete 5 different assessed activities'},
+  {ok:avg!==null&&avg>=80,icon:'🏆',name:'High achiever',desc:'Reach an 80% average best score'},
+  {ok:results.filter(r=>r.total&&r.score/r.total>=1).length>=1,icon:'⭐',name:'Perfect score',desc:'Earn full marks on an assessment'}
+ ];
+ const awardWrap=el('div','appgrid');
+ awards.forEach(a=>{const c=el('div','scoreBadge');c.append(el('span',null,a.icon+' '+(a.ok?'Unlocked':'In progress')),el('b',null,a.name),el('small','mut',a.desc));awardWrap.append(c)});
+ root.append(el('h3',null,'🏅 Achievements'),awardWrap);
+ const favs=readFavorites(),favoriteContent=(APP.content||[]).filter(c=>favs.includes(String(c.id)));
+ root.append(el('h3',null,'⭐ My favorites'));
+ const favWrap=el('div','links');
+ favoriteContent.forEach(c=>favWrap.append(studentDashboardCard(c,true)));
+ if(!favoriteContent.length)favWrap.append(empty('Add favorite resources below to build your personal collection. Favorites are saved on this device for this username.'));
+ root.append(favWrap);
+ root.append(el('h3',null,'✨ Recommended next'));
+ const recommended=(APP.content||[]).filter(c=>c.recommended||c.questions?.length).sort((a,b)=>Number(b.recommended)-Number(a.recommended)).slice(0,6);
+ const recWrap=el('div','links');
+ recommended.forEach(c=>recWrap.append(studentDashboardCard(c,favs.includes(String(c.id)))));
+ if(!recommended.length)recWrap.append(empty('No recommendations are available for the current grade and subject filters yet.'));
+ root.append(recWrap);
+ root.append(el('h3',null,'📊 Recent quiz results'));
+ const resultWrap=el('div','appgrid');
+ own.slice(0,5).forEach(r=>{const c=el('div','scoreBadge');c.append(el('b',null,r.title),el('span',null,r.score+' / '+r.total+' · '+(r.total?Math.round(r.score/r.total*100):0)+'%'),el('small','mut',r.created?new Date(r.created).toLocaleDateString():''));resultWrap.append(c)});
+ if(!own.length)resultWrap.append(empty('Your assessed results will appear here after you complete a quiz or mission.'));
+ root.append(resultWrap);
+}
+const studentDash=el('section','sec');studentDash.id='studentDashboard';
+studentDash.innerHTML='<div class="row"><div><div class="kick">YOUR PERSONAL LEARNING SPACE</div><h2>🎓 Student Dashboard</h2></div><button class="btn o" id="refreshStudentDashboard">↻ Refresh</button></div><p class="mut">Your real progress, achievements, saved resources and next learning steps.</p><div id="studentDashboardContent" class="tv"></div>';
+const mainEl=document.querySelector('main');const scienceLab=$('scienceLab');if(mainEl&&scienceLab)mainEl.insertBefore(studentDash,scienceLab);else if(mainEl)mainEl.append(studentDash);
+const dashNav=el('div','row appnav');const dashLink=el('a','btn o','🎓 Student Dashboard');dashLink.href='#studentDashboard';dashNav.append(dashLink);$('missionControl').append(dashNav);
+$('refreshStudentDashboard').onclick=handle(async()=>{await refreshProgress();await renderLearning();renderStudentDashboard();toast('Dashboard refreshed')});
+
 // Theme + dock
 function theme(){const r=document.documentElement,d=r.dataset.theme==='dark'||(r.dataset.theme!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark';try{localStorage.setItem('acth',r.dataset.theme)}catch(e){}}
 try{const t=localStorage.getItem('acth');if(t)document.documentElement.dataset.theme=t}catch(e){}
