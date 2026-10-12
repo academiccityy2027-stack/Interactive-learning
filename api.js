@@ -94,6 +94,52 @@ export async function api(req,env,SEEDS){
   await audit('announcement',title);
   return reply({ok:true});
  }
+
+ // Class notices and calendar entries are scoped to enrolled students or assigned staff.
+ if(path.startsWith('/api/school/')){
+  auth();
+  await db.prepare("CREATE TABLE IF NOT EXISTS lu_class_notices (id TEXT PRIMARY KEY,class_id TEXT NOT NULL,author_id TEXT NOT NULL,title TEXT NOT NULL,message TEXT NOT NULL,created TEXT NOT NULL)").run();
+  await db.prepare("CREATE INDEX IF NOT EXISTS lu_class_notices_class_idx ON lu_class_notices(class_id,created)").run();
+  await db.prepare("CREATE TABLE IF NOT EXISTS lu_calendar_events (id TEXT PRIMARY KEY,class_id TEXT NOT NULL,author_id TEXT NOT NULL,title TEXT NOT NULL,details TEXT NOT NULL,due_at TEXT NOT NULL,created TEXT NOT NULL)").run();
+  await db.prepare("CREATE INDEX IF NOT EXISTS lu_calendar_events_class_idx ON lu_calendar_events(class_id,due_at)").run();
+ }
+ const visibleClass=async id=>{
+  const c=await one('SELECT * FROM classes WHERE id=?',id);if(!c)return null;
+  if(user.role==='admin')return c;
+  if(user.role==='teacher')return c.teacher_id===user.id?c:null;
+  return await one('SELECT 1 FROM memberships WHERE class_id=? AND user_id=?',id,user.id)?c:null;
+ };
+ if(path==='/api/school/classes'&&method==='GET'){
+  const cs=user.role==='admin'?await all('SELECT * FROM classes ORDER BY grade,name'):user.role==='teacher'?await all('SELECT * FROM classes WHERE teacher_id=? ORDER BY grade,name',user.id):await all('SELECT c.* FROM classes c JOIN memberships m ON c.id=m.class_id WHERE m.user_id=? ORDER BY c.grade,c.name',user.id);
+  return reply({classes:cs.map(c=>({id:c.id,name:c.name,grade:c.grade,assigned:c.teacher_id===user.id}))});
+ }
+ if(path==='/api/school/feed'&&method==='GET'){
+  const cs=user.role==='admin'?await all('SELECT id,name,grade FROM classes'):user.role==='teacher'?await all('SELECT id,name,grade FROM classes WHERE teacher_id=?',user.id):await all('SELECT c.id,c.name,c.grade FROM classes c JOIN memberships m ON m.class_id=c.id WHERE m.user_id=?',user.id);
+  const ids=cs.map(c=>c.id);if(!ids.length)return reply({notices:[],events:[]});
+  const filter='('+ids.map(()=>'?').join(',')+')';
+  const notices=await all('SELECT id,class_id,title,message,created FROM lu_class_notices WHERE class_id IN '+filter+' ORDER BY created DESC LIMIT 80',...ids);
+  const events=await all('SELECT id,class_id,title,details,due_at,created FROM lu_calendar_events WHERE class_id IN '+filter+' ORDER BY due_at ASC LIMIT 150',...ids);
+  const byId=Object.fromEntries(cs.map(c=>[c.id,c]));
+  return reply({notices:notices.map(n=>({...n,className:byId[n.class_id]?.name||'Class'})),events:events.map(e=>({...e,className:byId[e.class_id]?.name||'Class'}))});
+ }
+ if(path==='/api/school/notices/new'&&method==='POST'){
+  staff();const classId=text(body.classId,100),c=await visibleClass(classId);
+  if(!c)fail(403,'You are not assigned to this class.');
+  const title=text(body.title,100),message=text(body.message,1200);
+  if(!title||!message)fail(400,'Enter an announcement title and message.');
+  await limit('class-notice:'+user.id,25,3600);
+  await run('INSERT INTO lu_class_notices VALUES(?,?,?,?,?,?)',random(12),classId,user.id,title,message,stamp());
+  await audit('class_notice',classId);return reply({ok:true},201);
+ }
+ if(path==='/api/school/events/new'&&method==='POST'){
+  staff();const classId=text(body.classId,100),c=await visibleClass(classId);
+  if(!c)fail(403,'You are not assigned to this class.');
+  const title=text(body.title,100),details=text(body.details,900),raw=text(body.dueAt,40),date=new Date(raw);
+  if(!title||!raw||!Number.isFinite(date.getTime())||date.getTime()<Date.now()-86400000||date.getTime()>Date.now()+63072000000)fail(400,'Enter a valid title and upcoming due date.');
+  await limit('class-event:'+user.id,30,3600);
+  await run('INSERT INTO lu_calendar_events VALUES(?,?,?,?,?,?,?)',random(12),classId,user.id,title,details,date.toISOString(),stamp());
+  await audit('calendar_event',classId);return reply({ok:true},201);
+ }
  if(path==='/api/me'&&method==='GET')return reply({user:user?safeUser(user):null});
  if(['/api/register','/api/login','/api/recover'].includes(path)&&method==='POST'){
   await limit('auth-ip:'+ip,40);await limit('auth-name:'+text(body.username).toLowerCase(),12);
