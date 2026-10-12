@@ -117,7 +117,7 @@ function luRenderRoleLanding(){
  if(teacherMode){
   cards.append(button('🧑‍🏫 Open Teacher Dashboard',teacherDashboard),button('📅 Assignment Calendar',()=>luSchoolFeed('events')),button('📣 Class Announcements',()=>luSchoolFeed('notices')),button('📊 Class Performance',teacherDashboard));
  }else{
-  cards.append(button('🛡 School Administration',adminTool),button('👥 Users & Access',usersTool),button('📣 School Announcement',luAnnounce),button('📅 School Calendar',()=>luSchoolFeed('events')));
+  cards.append(button('📊 School Analytics & Rankings',()=>luAdminCenter('analytics')),button('📥 Weekly Reports & Excel',()=>luAdminCenter('report')),button('👥 Users & Access',()=>luAdminCenter('users')),button('🏫 Teachers & Classes',()=>luAdminCenter('classes')),button('📅 Academic Calendar',()=>luAdminCenter('calendar')),button('🎫 Support Tickets',()=>luAdminCenter('tickets')),button('🏅 Recognition Center',()=>luAdminCenter('awards')));
  }
  $('luRoleStats').replaceChildren();
  const stat=el('div','lu-role-count');
@@ -143,7 +143,7 @@ function luUpdateMode(){
  $('luRoleView').textContent=teacher?'🛡 Switch to School Admin':'🧑‍🏫 Switch to Teacher';
  $('dashboardBtn').hidden=!staff||admin&&!teacher;
  $('adminBtn').hidden=!admin||teacher;
- $('luUsers').hidden=!admin||teacher;
+ $('luUsers').hidden=!admin||teacher;$('luAdminCenter').hidden=!admin||teacher;
  $('luWorkspace').hidden=!staff;
  $('luWorkspace').textContent=admin&&!teacher?'🛡 School Admin dashboard':'🧑‍🏫 Teacher dashboard';
  $('joinClass').hidden=staff;
@@ -219,7 +219,7 @@ async function luSupport(){
  if(luSignInRequired())return;
  const w=modal('💬 Contact & support');
  w.append(el('p','mut','Need help with your school account, class access, an assignment, or Learning Universe? Send a private message to a school administrator.'));
- w.append(button('Contact administrator',()=>luCompose(true)));
+ w.append(button('Contact administrator',()=>luCompose(true)));w.append(button('Submit & track support ticket',luSupportTickets,true));
  w.append(button('Open my messages',luMessages,true));
 }
 function luSearch(){
@@ -289,6 +289,86 @@ async function luWorkspace(){
  w.append(actions);
 }
 
+
+function luAdminKpi(label,value,detail){const c=el('div','lu-adminmetric');c.append(el('span',null,label),el('strong',null,String(value??0)),el('small',null,detail||''));return c}
+function luAdminTable(headers,rows){const box=el('div','tablewrap'),t=el('table','report');const head=el('thead'),tr=el('tr');headers.forEach(x=>tr.append(el('th',null,x)));head.append(tr);t.append(head);const body=el('tbody');rows.forEach(r=>{const row=el('tr');r.forEach(v=>row.append(el('td',null,String(v??''))));body.append(row)});t.append(body);box.append(t);return box}
+async function luAdminCenter(tab='analytics'){
+ if(APP.user?.role!=='admin'||luTeacherView)return toast('Switch to School Admin to access this dashboard.');
+ const w=modal('🛡 School Administration Center',true);w.append(el('p','mut','Real school records · Account, analytics and reporting tools · No estimated engagement data'));
+ const nav=el('div','lu-admin-tabs');
+ const tabs=[['analytics','📊 Analytics'],['report','📥 Reports'],['users','👥 Users'],['classes','🏫 Classes'],['calendar','📅 Calendar'],['tickets','🎫 Support'],['awards','🏅 Recognition']];
+ for(const [id,label]of tabs){const b=button(label,()=>luAdminCenter(id),id!==tab);if(id===tab)b.classList.add('lu-tab-active');nav.append(b)}w.append(nav);
+ const main=el('div','lu-admin-content');w.append(main);
+ const data=await call('/api/admin/center/overview');
+ const s=data.stats||{};
+ if(tab==='analytics'){
+  const stats=el('div','lu-admin-stats');
+  stats.append(luAdminKpi('All accounts',s.users,'From registered users'),luAdminKpi('Students',s.students,'Registered student accounts'),luAdminKpi('Approved teachers',s.teachers,'Teacher-role accounts'),luAdminKpi('School classes',s.classes,'Recorded classes'),luAdminKpi('Quiz attempts',s.submissions,'Recorded submissions'),luAdminKpi('Assessed learners',s.active_learners,'Unique learners with results'));
+  main.append(stats,el('h3',null,'Classes ranked by assessed work'));
+  main.append(el('p','mut','Ranking uses distinct student-task best attempts: completed means at least 60%. It does not count logins. Classes without assessed work are not ranked.'));
+  if(data.rankings.length)main.append(luAdminTable(['Class','Students','Tasks passed','Assessments','Avg best score'],data.rankings.slice(0,30).map(c=>[c.name,c.students,c.completed,c.assessed,c.average+'%'])));else main.append(empty('No assessed class results yet. Rankings will appear once students complete tasks.'));
+  main.append(el('h3',null,'Teacher activity — recorded actions'));
+  if(data.teachers.length)main.append(luAdminTable(['Teacher','Classes','Published resources','Student attempts in assigned classes'],data.teachers.map(t=>[t.name,t.classes,t.published_resources,t.student_attempts])));else main.append(empty('No teacher accounts registered.'));
+  if(data.truncated)main.append(el('p','mut','Result volume exceeds this dashboard preview limit. Use report exports for further analysis.'));
+ }
+ if(tab==='report'){
+  main.append(el('h3',null,'Weekly & custom reports'));
+  const form=el('form','appform lu-admin-report');const dates=el('div','lu-admin-row');
+  const now=new Date(),toDate=d=>d.toISOString().slice(0,10);
+  const start=el('input','field'),end=el('input','field');start.type=end.type='date';start.required=end.required=true;end.value=toDate(now);start.value=toDate(new Date(now.getTime()-6*86400000));
+  const cls=el('select','field');cls.append(new Option('All classes',''));for(const c of data.classes)cls.append(new Option('Grade '+c.grade+' · '+c.name,c.id));
+  const mk=(textVal,control)=>{const label=el('label',null,textVal);label.append(control);return label};dates.append(mk('From',start),mk('To',end),mk('Class',cls));form.append(dates);
+  const actions=el('div','lu-admin-row'),download=async format=>{
+   const params=new URLSearchParams({start:start.value,end:end.value,class:cls.value,format});
+   const res=await fetch('/api/admin/center/report?'+params,{credentials:'same-origin'});
+   if(!res.ok){const result=await res.json();throw Error(result.error||'Report failed')}
+   const file=await res.blob();const url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='Learning_Universe_Report_'+start.value+'_'+end.value+'.'+format;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
+  actions.append(button('⬇ Export Excel',()=>download('xlsx')),button('⬇ Export CSV',()=>download('csv'),true),button('Preview records',async()=>{
+   const params=new URLSearchParams({start:start.value,end:end.value,class:cls.value});
+   const r=await call('/api/admin/center/report?'+params);
+   const area=el('div');area.append(el('p','mut',r.total+' assessment records'+(r.truncated?' (limit reached)':'')));
+   if(r.rows.length>1)area.append(luAdminTable(r.rows[0],r.rows.slice(1,101)));else area.append(empty('No results for the selected date range.'));
+   const old=$('luReportPreview');if(old)old.remove();area.id='luReportPreview';form.append(area);
+  },true));form.append(actions);main.append(form,el('p','mut','Weekly reports are calculated from recorded assessments. There is no inferred attendance or login-participation score.'));
+ }
+ if(tab==='users'){const buttons=el('div','lu-admin-row');buttons.append(button('Open searchable Users & Access',usersTool),button('Teacher approvals & passwords',usersTool,true));main.append(buttons,luAdminKpi('Registered users',s.users,'Actual school accounts'),luAdminKpi('Teachers',s.teachers,'Account approvals controlled by admin'),luAdminKpi('Students',s.students,'Secure password resets available')); }
+ if(tab==='classes'){const buttons=el('div','lu-admin-row');buttons.append(button('Assign a teacher',adminTool),button('Create a class',createClass,true));main.append(buttons);if(data.classes.length)main.append(luAdminTable(['Grade','Class','Assigned teacher','Registered students'],data.classes.map(c=>[c.grade,c.name,c.teacher||'Unassigned',c.students])));else main.append(empty('No classes recorded yet.')); }
+ if(tab==='calendar'){main.append(button('Open academic calendar',()=>luSchoolFeed('events')),button('Add a school class deadline',()=>luNewClassItem('events'),true),button('Send school-wide announcement',luAnnounce,true));main.append(el('p','mut','Dates and classroom assignments are stored in the school database. Class posts are visible only to enrolled students and permitted teachers.')); }
+ if(tab==='tickets'){
+  main.append(el('h3',null,'School support requests'));
+  main.append(luAdminKpi('Open or in progress',s.open_tickets,'Unresolved requests'));
+  if(!data.tickets.length)main.append(empty('No support tickets submitted.'));
+  for(const t of data.tickets){
+   const item=luListMessage(t.subject,t.details,(t.name||t.username||'Account')+' · '+t.status+' · '+new Date(t.created).toLocaleString('en-GB'));
+   const actions=el('div','lu-admin-row');for(const [state,label]of [['open','Open'],['in_progress','In progress'],['resolved','Resolved']]){const b=button(label,async()=>{await call('/api/admin/center/ticket-status',{id:t.id,status:state});await luAdminCenter('tickets')},state!==t.status);actions.append(b)}item.append(actions);main.append(item);
+  }
+ }
+ if(tab==='awards'){
+  const f=el('form','appform');const users=(await call('/api/admin/users')).users.filter(u=>u.role==='student');
+  const student=el('select','field');for(const u of users)student.append(new Option(u.name+' (@'+u.username+')',u.id));
+  const title=el('input','field');title.required=true;title.maxLength=90;title.placeholder='e.g. STEM Innovator';const note=el('textarea','field');note.maxLength=400;note.placeholder='What did the student achieve?';
+  const submit=el('button','btn','Award recognition');submit.type='submit';const err=el('p','errorBox');
+  if(!users.length)f.append(empty('Register a student before awarding recognition.'));
+  else{f.append(el('label',null,'Student'),student,el('label',null,'Award title'),title,el('label',null,'Recognition note'),note,submit,err);
+   f.onsubmit=async e=>{e.preventDefault();submit.disabled=true;try{await call('/api/admin/center/award',{studentId:student.value,title:title.value,note:note.value});toast('Recognition recorded');await luAdminCenter('awards')}catch(x){err.textContent=x.message;submit.disabled=false}}}
+  main.append(f,el('h3',null,'Award history'));
+  if(!data.awards.length)main.append(empty('No recognitions awarded yet.'));
+  for(const a of data.awards)main.append(luListMessage('🏅 '+a.title,a.student+' · '+a.note,new Date(a.created).toLocaleDateString('en-GB')));
+ }
+}
+async function luSupportTickets(){
+ if(luSignInRequired())return;
+ const w=modal('🎫 School Support Tickets',true),data=await call('/api/support/tickets');
+ const form=el('form','appform'),subject=el('input','field'),detail=el('textarea','field'),send=el('button','btn','Submit support ticket'),err=el('p','errorBox');
+ subject.required=true;subject.maxLength=100;subject.placeholder='What do you need help with?';detail.required=true;detail.maxLength=1800;detail.placeholder='Describe the issue and any steps you already tried.';send.type='submit';
+ form.append(el('label',null,'Subject'),subject,el('label',null,'Details'),detail,send,err);
+ form.onsubmit=async e=>{e.preventDefault();send.disabled=true;try{await call('/api/support/tickets',{subject:subject.value,details:detail.value});toast('Support ticket submitted');await luSupportTickets()}catch(x){err.textContent=x.message;send.disabled=false}};
+ w.append(form,el('h3',null,'My support requests'));
+ if(!data.tickets.length)w.append(empty('No support requests yet.'));
+ for(const t of data.tickets)w.append(luListMessage(t.subject,t.details,t.status+' · '+new Date(t.created).toLocaleString('en-GB')));
+}
+
 function luToggle(open){const side=$('luSidebar'),shade=$('luShade');if(!side||!shade)return;side.classList.toggle('is-open',open);side.setAttribute('aria-hidden',String(!open));shade.hidden=!open;$('luMenu').setAttribute('aria-expanded',String(open));if(open)$('luClose').focus();else $('luMenu').focus()}
 $('luMenu').onclick=()=>luToggle(true);
 $('luClose').onclick=()=>luToggle(false);
@@ -307,6 +387,7 @@ async function luSelectRole(role){
 }
 $('luRoleSelect').onchange=()=>handle(()=>luSelectRole($('luRoleSelect').value))();
 $('luRoleView').onclick=()=>handle(()=>luSelectRole(luTeacherView?'admin':'teacher'))();
+$('luAdminCenter').onclick=handle(()=>luAdminCenter('analytics'));
 $('luWorkspace').onclick=handle(luWorkspace);$('luCalendar').onclick=handle(()=>luSchoolFeed('events'));$('luClassNotices').onclick=handle(()=>luSchoolFeed('notices'));
 $('gbox').onclick=()=>{$('gbox').animate([{scale:1},{scale:1.05},{scale:1}],{duration:450});boom()};$('gtag').textContent='EXPLORE · CREATE · ACHIEVE';
 (async()=>{try{APP.user=(await call('/api/me')).user;updateMe();if(APP.user){await signedIn();closeGate()}else{await loadClasses();await renderLearning();await refreshProgress();await renderProjects();openGate()}}catch(e){$('connection').textContent='Server connection unavailable';$('recommendation').textContent='Open this application through its server URL. Shared accounts and results need the backend.';updateMe();openGate();$('authFeedback').textContent=e.message}})();
