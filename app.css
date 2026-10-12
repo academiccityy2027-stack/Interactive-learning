@@ -117,3 +117,26 @@ body[data-school-view="teacher"] .lu-modebanner{border-left:4px solid #159a9b;ba
 body[data-school-view="admin"] .lu-modebanner{border-left:4px solid #285fbf;background:rgba(30,89,194,.11)}
 header .bar{flex-wrap:wrap}
 @media(max-width:760px){.lu-rolepicker>span{display:none}.lu-rolepicker select{max-width:143px;font-size:12px}.lu-rolepicker{padding:3px 5px}}
+
+/* Full-page administrator / teacher portals — no role-switch popup */
+.lu-rolelanding{max-width:1340px;margin:26px auto 0;padding:clamp(24px,4vw,48px);border-radius:30px;background:linear-gradient(130deg,#10265b 0%,#143c73 50%,#106d98 100%);color:white;box-shadow:0 24px 75px rgba(7,35,86,.23)}
+.lu-rolelanding[hidden]{display:none}
+.lu-rolelandinghead>span{letter-spacing:2px;font-weight:900;font-size:11px;color:#9be7f1}
+.lu-rolelanding h1{font-size:clamp(35px,4.7vw,58px);letter-spacing:-1.3px;line-height:1.1;margin:12px 0 10px;color:#fff}
+.lu-rolelandinghead p{max-width:730px;color:#d5e9ff;font-size:15px;line-height:1.6}
+.lu-rolelandingstats{display:flex;gap:12px;margin:23px 0}
+.lu-role-count{display:flex;flex-direction:column;gap:4px;padding:13px 20px;border:1px solid #ffffff40;border-radius:15px;background:#ffffff17}
+.lu-role-count strong{font-size:30px;color:#fff}.lu-role-count span{font-size:12px;color:#d9efff}
+.lu-rolelandingactions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.lu-rolelandingactions .btn{min-height:84px;border-radius:16px;white-space:normal;text-align:left;padding:17px;background:rgba(255,255,255,.94);color:#18315f}
+.lu-rolelandingclasses{margin-top:28px;padding-top:20px;border-top:1px solid #ffffff42}
+.lu-rolelandingclasses h2{color:#fff;font-size:23px;margin:0 0 14px}
+.lu-rolelandingclasses .mut{color:#cee7f4}
+.lu-class-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}
+.lu-class-tile{display:flex;flex-direction:column;gap:8px;background:#ffffff1c;border:1px solid #ffffff42;border-radius:15px;padding:16px}
+.lu-class-tile strong{font-size:17px;color:#fff}.lu-class-tile small{color:#bce7ff;font-weight:900;letter-spacing:1px}
+.lu-class-tile .btn{align-self:start;color:#133a74;background:white}
+body[data-school-view="admin"] main>.hero,body[data-school-view="teacher"] main>.hero{display:none}
+body[data-school-view="admin"] #missionControl,body[data-school-view="teacher"] #missionControl{margin-top:22px}
+@media(max-width:900px){.lu-rolelandingactions{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.lu-rolelanding{margin:12px 10px 0;padding:23px 17px}.lu-rolelandingactions{grid-template-columns:1fr 1fr;gap:8px}.lu-rolelandingactions .btn{padding:12px;font-size:12px;min-height:72px}.lu-class-grid{grid-template-columns:repeat(2,1fr)}}
