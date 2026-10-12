@@ -140,3 +140,17 @@ header .bar{flex-wrap:wrap}
 body[data-school-view="admin"] #missionControl,body[data-school-view="teacher"] #missionControl{margin-top:22px}
 @media(max-width:900px){.lu-rolelandingactions{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.lu-rolelanding{margin:12px 10px 0;padding:23px 17px}.lu-rolelandingactions{grid-template-columns:1fr 1fr;gap:8px}.lu-rolelandingactions .btn{padding:12px;font-size:12px;min-height:72px}.lu-class-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Planets first; compact staff workspace sits directly below the hero. */
+.lu-rolelanding{max-width:1340px;margin:16px auto 0;padding:20px 24px;border-radius:20px;box-shadow:0 10px 30px rgba(7,35,86,.14)}
+.lu-rolelandinghead>span{font-size:9px;letter-spacing:1.2px}
+.lu-rolelanding h1{font-size:clamp(23px,2.4vw,32px);letter-spacing:-.6px;margin:7px 0 4px}
+.lu-rolelandinghead p{font-size:12px;line-height:1.4;margin:0}
+.lu-rolelandingstats{margin:12px 0}
+.lu-role-count{padding:8px 13px;gap:1px}.lu-role-count strong{font-size:21px}.lu-role-count span{font-size:11px}
+.lu-rolelandingactions{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.lu-rolelandingactions .btn{min-height:49px;padding:10px 12px;border-radius:10px;font-size:12px}
+.lu-rolelandingclasses{margin-top:12px;padding-top:11px}.lu-rolelandingclasses h2{font-size:16px;margin-bottom:8px}
+.lu-class-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px}
+.lu-class-tile{padding:11px;gap:5px;border-radius:11px}.lu-class-tile strong{font-size:13px}
+@media(max-width:700px){.lu-rolelanding{margin:12px 10px 0;padding:15px}.lu-rolelandingactions{grid-template-columns:repeat(2,minmax(0,1fr))}.lu-rolelandingactions .btn{min-height:45px;font-size:11px}.lu-rolelanding h1{font-size:23px}}
