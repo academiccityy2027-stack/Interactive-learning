@@ -1,0 +1,53 @@
+name: Deploy isolated Learning Universe preview
+
+on:
+  push:
+    branches:
+      - setup/preview-deployment
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate JavaScript and preview configuration
+        run: |
+          node --check index.js
+          node <<'NODE'
+          const fs = require('node:fs');
+          const conf = JSON.parse(fs.readFileSync('wrangler.jsonc', 'utf8'));
+          const preview = conf.env?.preview;
+          if (preview?.name !== 'learning-universe-school-preview') throw Error('Unexpected preview Worker name');
+          const db = preview.d1_databases?.find(x => x.binding === 'DB');
+          if (db?.database_id !== 'c400a32b-626c-48c2-b5b1-e8cc895986db') throw Error('Preview DB binding is not isolated');
+          if (db.database_id === conf.d1_databases?.find(x => x.binding === 'DB')?.database_id) throw Error('Preview DB must not equal production DB');
+          console.log('Syntax valid; preview Worker and isolated D1 binding verified.');
+          NODE
+
+      - name: Deploy preview Worker only
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || (echo "Missing GitHub Actions secret CLOUDFLARE_API_TOKEN" && exit 1)
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || (echo "Missing GitHub Actions secret CLOUDFLARE_ACCOUNT_ID" && exit 1)
+          npx --yes wrangler@4 deploy --env preview
+
+      - name: Smoke-test preview homepage
+        run: |
+          PREVIEW_URL="https://learning-universe-school-preview.academic-cityy2027.workers.dev"
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 3 "$PREVIEW_URL" -o /tmp/preview.html
+          grep -Fq "Learning Universe" /tmp/preview.html
+          echo "Preview homepage returned HTTP 200 and contains the Learning Universe title."
