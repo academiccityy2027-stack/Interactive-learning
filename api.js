@@ -43,6 +43,57 @@ export async function api(req,env,SEEDS){
  const cookie=t=>'lu_session='+t+'; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=604800';
  async function login(u){const t=random(32);await run('INSERT INTO sessions(token,user_id,expires) VALUES(?,?,?)',await digest(t),u.id,Date.now()+604800000);return cookie(t)}
  async function audit(action,target){await run('INSERT INTO audit VALUES(?,?,?,?,?)',random(12),user.id,action,target,stamp())}
+
+ // School messages and announcements are stored in preview D1.
+ if(path.startsWith('/api/comms/')){
+  auth();
+  await db.prepare("CREATE TABLE IF NOT EXISTS lu_messages (id TEXT PRIMARY KEY, sender_id TEXT NOT NULL, receiver_id TEXT NOT NULL, subject TEXT NOT NULL, body TEXT NOT NULL, created TEXT NOT NULL, read_at TEXT)").run();
+  await db.prepare("CREATE INDEX IF NOT EXISTS lu_msg_received ON lu_messages(receiver_id,created)").run();
+  await db.prepare("CREATE TABLE IF NOT EXISTS lu_announcements (id TEXT PRIMARY KEY, sender_id TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, created TEXT NOT NULL)").run();
+ }
+ const allowedContact=async other=>{
+  if(other.id===user.id)return false;
+  if(user.role==='admin'||other.role==='admin')return true;
+  if(user.role==='teacher'&&other.role==='student')return !!await one('SELECT 1 FROM memberships m JOIN classes c ON m.class_id=c.id WHERE m.user_id=? AND c.teacher_id=?',other.id,user.id);
+  if(user.role==='student'&&other.role==='teacher')return !!await one('SELECT 1 FROM memberships m JOIN classes c ON m.class_id=c.id WHERE m.user_id=? AND c.teacher_id=?',user.id,other.id);
+  return false;
+ };
+ if(path==='/api/comms/contacts'&&method==='GET'){
+  const people=await all('SELECT id,username,name,role,grade FROM users WHERE id<>? ORDER BY name LIMIT 500',user.id),contacts=[];
+  for(const other of people)if(await allowedContact(other))contacts.push(other);
+  return reply({contacts});
+ }
+ if(path==='/api/comms/messages'&&method==='GET'){
+  const sent=uurl.searchParams.get('mode')==='sent';
+  const rows=sent?await all('SELECT m.id,m.subject,m.body,m.created,m.read_at,u.username AS contact_username,u.name AS contact_name FROM lu_messages m JOIN users u ON u.id=m.receiver_id WHERE m.sender_id=? ORDER BY m.created DESC LIMIT 80',user.id):await all('SELECT m.id,m.subject,m.body,m.created,m.read_at,u.username AS contact_username,u.name AS contact_name FROM lu_messages m JOIN users u ON u.id=m.sender_id WHERE m.receiver_id=? ORDER BY m.created DESC LIMIT 80',user.id);
+  return reply({messages:rows});
+ }
+ if(path==='/api/comms/send'&&method==='POST'){
+  await limit('school-message:'+user.id,25,3600);
+  const other=await one('SELECT id,role FROM users WHERE id=?',text(body.recipient,100));
+  if(!other||!await allowedContact(other))fail(403,'This recipient is not an approved school contact.');
+  const subject=text(body.subject,100),message=text(body.message,1800);
+  if(!subject||message.length<2)fail(400,'Enter a subject and a message.');
+  await run('INSERT INTO lu_messages(id,sender_id,receiver_id,subject,body,created) VALUES(?,?,?,?,?,?)',random(12),user.id,other.id,subject,message,stamp());
+  return reply({ok:true},201);
+ }
+ if(path==='/api/comms/read'&&method==='POST'){
+  await run('UPDATE lu_messages SET read_at=? WHERE id=? AND receiver_id=? AND read_at IS NULL',stamp(),text(body.id,100),user.id);
+  return reply({ok:true});
+ }
+ if(path==='/api/comms/notifications'&&method==='GET'){
+  const unread=await all('SELECT m.id,m.subject,m.created,u.name AS sender FROM lu_messages m JOIN users u ON u.id=m.sender_id WHERE m.receiver_id=? AND m.read_at IS NULL ORDER BY m.created DESC LIMIT 20',user.id);
+  const announcements=await all('SELECT id,title,body,created FROM lu_announcements ORDER BY created DESC LIMIT 12');
+  return reply({unread:unread.length,messages:unread,announcements});
+ }
+ if(path==='/api/comms/announce'&&method==='POST'){
+  admin();await limit('school-announce:'+user.id,10,3600);
+  const title=text(body.title,100),message=text(body.message,1000);
+  if(!title||message.length<2)fail(400,'Enter an announcement title and message.');
+  await run('INSERT INTO lu_announcements VALUES(?,?,?,?,?)',random(12),user.id,title,message,stamp());
+  await audit('announcement',title);
+  return reply({ok:true});
+ }
  if(path==='/api/me'&&method==='GET')return reply({user:user?safeUser(user):null});
  if(['/api/register','/api/login','/api/recover'].includes(path)&&method==='POST'){
   await limit('auth-ip:'+ip,40);await limit('auth-name:'+text(body.username).toLowerCase(),12);
