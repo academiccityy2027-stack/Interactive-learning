@@ -112,11 +112,11 @@ async function api(req,env,SEEDS){
   return await one('SELECT 1 FROM memberships WHERE class_id=? AND user_id=?',id,user.id)?c:null;
  };
  if(path==='/api/school/classes'&&method==='GET'){
-  const cs=user.role==='admin'?await all('SELECT * FROM classes ORDER BY grade,name'):user.role==='teacher'?await all('SELECT * FROM classes WHERE teacher_id=? ORDER BY grade,name',user.id):await all('SELECT c.* FROM classes c JOIN memberships m ON c.id=m.class_id WHERE m.user_id=? ORDER BY c.grade,c.name',user.id);
+  const cs=user.role==='admin'&&uurl.searchParams.get('scope')!=='mine'?await all('SELECT * FROM classes ORDER BY grade,name'):user.role==='teacher'||user.role==='admin'?await all('SELECT * FROM classes WHERE teacher_id=? ORDER BY grade,name',user.id):await all('SELECT c.* FROM classes c JOIN memberships m ON c.id=m.class_id WHERE m.user_id=? ORDER BY c.grade,c.name',user.id);
   return reply({classes:cs.map(c=>({id:c.id,name:c.name,grade:c.grade,assigned:c.teacher_id===user.id}))});
  }
  if(path==='/api/school/feed'&&method==='GET'){
-  const cs=user.role==='admin'?await all('SELECT id,name,grade FROM classes'):user.role==='teacher'?await all('SELECT id,name,grade FROM classes WHERE teacher_id=?',user.id):await all('SELECT c.id,c.name,c.grade FROM classes c JOIN memberships m ON m.class_id=c.id WHERE m.user_id=?',user.id);
+  const cs=user.role==='admin'&&uurl.searchParams.get('scope')!=='mine'?await all('SELECT id,name,grade FROM classes'):user.role==='teacher'||user.role==='admin'?await all('SELECT id,name,grade FROM classes WHERE teacher_id=?',user.id):await all('SELECT c.id,c.name,c.grade FROM classes c JOIN memberships m ON m.class_id=c.id WHERE m.user_id=?',user.id);
   const ids=cs.map(c=>c.id);if(!ids.length)return reply({notices:[],events:[]});
   const filter='('+ids.map(()=>'?').join(',')+')';
   const notices=await all('SELECT id,class_id,title,message,created FROM lu_class_notices WHERE class_id IN '+filter+' ORDER BY created DESC LIMIT 80',...ids);
@@ -190,7 +190,7 @@ async function api(req,env,SEEDS){
   return reply({recoveryCode:code,message:'Password reset. All existing sessions were signed out.'});
  }
  if(path==='/api/reset-student'&&method==='POST'){staff();await limit('reset:'+user.id,20);const target=await one("SELECT * FROM users WHERE id=? AND role='student'",body.id);if(!target)fail(404,'Student unavailable.');if(user.role!=='admin'&&!await one('SELECT 1 FROM memberships m JOIN classes c ON c.id=m.class_id WHERE m.user_id=? AND c.teacher_id=?',target.id,user.id))fail(403,'Student is not in your assigned classes.');const code=random(16);await db.batch([db.prepare('UPDATE users SET password=?,recovery=? WHERE id=?').bind(await hash(pass(body.password)),await digest(code),target.id),db.prepare('DELETE FROM sessions WHERE user_id=?').bind(target.id)]);await audit('password_reset',target.id);return reply({recoveryCode:code});}
- if(path==='/api/classes'&&method==='GET'){auth();const cs=user.role==='admin'?await all('SELECT * FROM classes ORDER BY name'):user.role==='teacher'?await all('SELECT * FROM classes WHERE teacher_id=? ORDER BY name',user.id):await all('SELECT c.* FROM classes c JOIN memberships m ON m.class_id=c.id WHERE m.user_id=? ORDER BY c.name',user.id);return reply({classes:cs});}
+ if(path==='/api/classes'&&method==='GET'){auth();const cs=user.role==='admin'&&uurl.searchParams.get('scope')!=='mine'?await all('SELECT * FROM classes ORDER BY name'):user.role==='teacher'||user.role==='admin'?await all('SELECT * FROM classes WHERE teacher_id=? ORDER BY name',user.id):await all('SELECT c.* FROM classes c JOIN memberships m ON m.class_id=c.id WHERE m.user_id=? ORDER BY c.name',user.id);return reply({classes:cs});}
  if(path==='/api/classes'&&method==='POST'){staff();const name=text(body.name,80);if(!name)fail(400,'Enter a class name.');const c={id:random(12),name,grade:grade(body.grade),teacher_id:user.id,code:random(5).toUpperCase()};await run('INSERT INTO classes VALUES(?,?,?,?,?)',...Object.values(c));return reply({class:c},201);}
  if(path==='/api/join'&&method==='POST'){auth();if(user.role!=='student')fail(403,'Student accounts join classes.');await limit('join:'+user.id,20);const c=await one('SELECT * FROM classes WHERE code=?',text(body.code,20).toUpperCase());if(!c)fail(404,'Join code not found.');if(c.grade!==user.grade)fail(400,'Your profile grade must match this class.');await run('INSERT OR IGNORE INTO memberships VALUES(?,?)',c.id,user.id);return reply({ok:true});}
  if(path==='/api/content'&&method==='GET'){
