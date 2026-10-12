@@ -167,6 +167,62 @@ async function api(req,env,SEEDS){
  if(path==='/api/profile'&&method==='POST'){auth();await run('UPDATE users SET name=?,grade=?,avatar=? WHERE id=?',text(body.name,50)||user.name,grade(body.grade),avatar(body.avatar||user.avatar),user.id);return reply({user:safeUser(await one('SELECT * FROM users WHERE id=?',user.id))});}
  if(path==='/api/password'&&method==='POST'){auth();await limit('password:'+user.id,10);if(!await check(typeof body.current==='string'?body.current:'',user.password))fail(400,'Current password is incorrect.');const code=random(16);await db.batch([db.prepare('UPDATE users SET password=?,recovery=? WHERE id=?').bind(await hash(pass(body.password)),await digest(code),user.id),db.prepare('DELETE FROM sessions WHERE user_id=?').bind(user.id)]);return reply({recoveryCode:code,message:'Password changed. Save this recovery code.'},200,await login(user));}
  if(path==='/api/admin/activate'&&method==='POST'){auth();await limit('activate:'+ip,5);if(!env.ADMIN_SETUP_CODE||!equal(text(body.code,100),env.ADMIN_SETUP_CODE))fail(403,'Invalid administrator activation code.');const r=await one("UPDATE users SET role='admin' WHERE id=? AND NOT EXISTS(SELECT 1 FROM users WHERE role='admin') RETURNING id",user.id);if(!r)fail(409,'An administrator is already configured.');await audit('admin_activation',user.id);return reply({user:safeUser(await one('SELECT * FROM users WHERE id=?',user.id))});}
+
+ // Administration analytics are based on real assessed work, never sign-in counts.
+ if(path.startsWith('/api/admin/center/')){
+  admin();
+  await db.prepare("CREATE TABLE IF NOT EXISTS lu_support_tickets(id TEXT PRIMARY KEY,author_id TEXT NOT NULL,subject TEXT NOT NULL,details TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'open',created TEXT NOT NULL,updated TEXT NOT NULL)").run();
+  await db.prepare("CREATE TABLE IF NOT EXISTS lu_recognition(id TEXT PRIMARY KEY,student_id TEXT NOT NULL,awarded_by TEXT NOT NULL,title TEXT NOT NULL,note TEXT NOT NULL,created TEXT NOT NULL)").run();
+ }
+ if(path==='/api/admin/center/overview'&&method==='GET'){
+  const date=t=>{const v=uurl.searchParams.get(t);if(!v)return t==='start'?'1970-01-01':'9999-12-31';if(!/^\d{4}-\d{2}-\d{2}$/.test(v))fail(400,'Invalid date.');return v};
+  const start=date('start'),end=date('end');if(start>end)fail(400,'Start date must be before end date.');
+  const stats=await one("SELECT (SELECT COUNT(*) FROM users) users,(SELECT COUNT(*) FROM users WHERE role='teacher') teachers,(SELECT COUNT(*) FROM users WHERE role='student') students,(SELECT COUNT(*) FROM classes) classes,(SELECT COUNT(*) FROM results WHERE substr(created,1,10)>=? AND substr(created,1,10)<=?) submissions,(SELECT COUNT(DISTINCT user_id) FROM results WHERE substr(created,1,10)>=? AND substr(created,1,10)<=?) active_learners,(SELECT COUNT(*) FROM lu_support_tickets WHERE status<>'resolved') open_tickets",start,end,start,end);
+  const classes=await all('SELECT c.id,c.name,c.grade,u.name teacher,(SELECT COUNT(*) FROM memberships m WHERE m.class_id=c.id) students FROM classes c LEFT JOIN users u ON u.id=c.teacher_id ORDER BY c.grade,c.name LIMIT 500');
+  const teachers=await all("SELECT u.id,u.name,u.username,(SELECT COUNT(*) FROM classes c WHERE c.teacher_id=u.id) classes,(SELECT COUNT(*) FROM content ct WHERE ct.owner_id=u.id) published_resources,(SELECT COUNT(*) FROM results r JOIN classes c ON c.id=r.class_id WHERE c.teacher_id=u.id AND substr(r.created,1,10)>=? AND substr(r.created,1,10)<=?) student_attempts FROM users u WHERE u.role IN ('teacher','admin') ORDER BY published_resources DESC,student_attempts DESC,u.name LIMIT 200",start,end);
+  const resultRows=await all("SELECT r.user_id,r.content_id,r.class_id,r.grade,r.score,r.total,r.created,u.name student FROM results r JOIN users u ON u.id=r.user_id WHERE substr(r.created,1,10)>=? AND substr(r.created,1,10)<=? ORDER BY r.created DESC LIMIT 7000",start,end);
+  const best=new Map();for(const r of resultRows){if(r.total<=0)continue;const key=r.user_id+':'+r.content_id;const previous=best.get(key);if(!previous||r.score/r.total>previous.score/previous.total)best.set(key,r)}
+  const classAgg=new Map(classes.map(c=>[c.id,{id:c.id,name:c.name,grade:c.grade,teacher:c.teacher,students:c.students,completed:0,assessed:0,points:0}]));
+  for(const r of best.values()){if(!r.class_id||!classAgg.has(r.class_id))continue;const x=classAgg.get(r.class_id);x.assessed++;x.points+=r.score/r.total*100;if(r.score/r.total>=.6)x.completed++}
+  const rankings=[...classAgg.values()].filter(c=>c.assessed>0).map(c=>({...c,average:Math.round(c.points/c.assessed)})).sort((a,b)=>b.completed-a.completed||b.average-a.average);
+  const ticketRows=await all("SELECT t.id,t.subject,t.details,t.status,t.created,t.updated,u.name,u.username FROM lu_support_tickets t LEFT JOIN users u ON u.id=t.author_id ORDER BY t.updated DESC LIMIT 100");
+  const awards=await all("SELECT r.id,r.title,r.note,r.created,u.name student FROM lu_recognition r JOIN users u ON u.id=r.student_id ORDER BY r.created DESC LIMIT 100");
+  return reply({stats,classes,teachers,rankings,tickets:ticketRows,awards,truncated:resultRows.length===7000,dateRange:{start,end}});
+ }
+ if(path==='/api/admin/center/report'&&method==='GET'){
+  const start=uurl.searchParams.get('start')||'1970-01-01',end=uurl.searchParams.get('end')||'9999-12-31',cid=uurl.searchParams.get('class')||'';
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||start>end)fail(400,'Invalid report dates.');
+  const allRows=await all("SELECT u.name student,u.username,r.grade,c.name classroom,t.name teacher,r.subject,r.title,r.score,r.total,r.created FROM results r JOIN users u ON u.id=r.user_id LEFT JOIN classes c ON c.id=r.class_id LEFT JOIN users t ON t.id=c.teacher_id WHERE substr(r.created,1,10)>=? AND substr(r.created,1,10)<=? AND (?='' OR r.class_id=?) ORDER BY r.created DESC LIMIT 10000",start,end,cid,cid);
+  const rows=[['Student','Username','Grade','Class','Teacher','Subject','Assessment','Score','Total','Percentage','Submitted (UTC)'],...allRows.filter(r=>r.total>0).map(r=>[r.student,r.username,r.grade,r.classroom||'',r.teacher||'',r.subject,r.title,r.score,r.total,Math.round(r.score/r.total*100),r.created])];
+  const format=uurl.searchParams.get('format');if(format==='xlsx')return new Response(makeXlsx(rows),{headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','Content-Disposition':'attachment; filename="learning-universe-school-report.xlsx"','Cache-Control':'no-store'}});
+  if(format==='csv'){const quote=v=>{const raw=String(v??'');const safe=/^[=+@-]/.test(raw)?String.fromCharCode(39)+raw:raw;return '"'+safe.replaceAll('"','""')+'"'};const csv=rows.map(row=>row.map(quote).join(',')).join('\r\n');return new Response(csv,{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="learning-universe-school-report.csv"','Cache-Control':'no-store'}})}
+
+  return reply({rows:rows.slice(0,501),total:rows.length-1,truncated:allRows.length===10000});
+ }
+ if(path==='/api/admin/center/ticket-status'&&method==='POST'){
+  const id=text(body.id,100),status=text(body.status,20);
+  if(!['open','in_progress','resolved'].includes(status))fail(400,'Invalid ticket status.');
+  const found=await one('SELECT id FROM lu_support_tickets WHERE id=?',id);if(!found)fail(404,'Ticket not found.');
+  await run('UPDATE lu_support_tickets SET status=?,updated=? WHERE id=?',status,stamp(),id);await audit('ticket_'+status,id);return reply({ok:true});
+ }
+ if(path==='/api/admin/center/award'&&method==='POST'){
+  const target=await one("SELECT id FROM users WHERE id=? AND role='student'",text(body.studentId,100));
+  const title=text(body.title,90),note=text(body.note,400);
+  if(!target||!title)fail(400,'Choose a student and recognition title.');
+  await run('INSERT INTO lu_recognition VALUES(?,?,?,?,?,?)',random(12),target.id,user.id,title,note,stamp());await audit('recognition',target.id);return reply({ok:true});
+ }
+ if(path==='/api/support/tickets'&&method==='POST'){
+  auth();await limit('support-tickets:'+user.id,8,3600);
+  await db.prepare("CREATE TABLE IF NOT EXISTS lu_support_tickets(id TEXT PRIMARY KEY,author_id TEXT NOT NULL,subject TEXT NOT NULL,details TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'open',created TEXT NOT NULL,updated TEXT NOT NULL)").run();
+  const subject=text(body.subject,100),details=text(body.details,1800);
+  if(!subject||details.length<5)fail(400,'Enter a subject and describe the issue.');
+  await run('INSERT INTO lu_support_tickets VALUES(?,?,?,?,?,?,?)',random(12),user.id,subject,details,'open',stamp(),stamp());
+  return reply({ok:true},201);
+ }
+ if(path==='/api/support/tickets'&&method==='GET'){
+  auth();await db.prepare("CREATE TABLE IF NOT EXISTS lu_support_tickets(id TEXT PRIMARY KEY,author_id TEXT NOT NULL,subject TEXT NOT NULL,details TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'open',created TEXT NOT NULL,updated TEXT NOT NULL)").run();
+  return reply({tickets:await all('SELECT id,subject,details,status,created,updated FROM lu_support_tickets WHERE author_id=? ORDER BY created DESC LIMIT 80',user.id)});
+ }
  if(path==='/api/admin/users'&&method==='GET'){admin();return reply({users:(await all('SELECT * FROM users ORDER BY username LIMIT 500')).map(u=>({...safeUser(u),employeeNumber:u.employee_number||null,created:u.created||null}))});}
  if(path==='/api/admin/employee'&&method==='POST'){
   admin();const employee=text(body.employeeNumber,20),id=text(body.id,100);
