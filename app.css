@@ -108,3 +108,12 @@ header .lu-topmenu{margin-inline-start:6px}
 .lu-workspace-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
 .lu-workspace-grid .btn{min-height:66px;border-radius:13px;text-align:left;padding:15px}
 @media(max-width:650px){.lu-workspace-grid{grid-template-columns:1fr}}
+
+/* Role selector — dual administrator and teacher workspace */
+.lu-rolepicker{display:flex;align-items:center;gap:7px;flex:0 0 auto;padding:5px 7px 5px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:10px;font-weight:800;color:var(--mut)}
+.lu-rolepicker[hidden]{display:none}
+.lu-rolepicker select{max-width:180px;padding:6px 4px;border:none;border-radius:7px;background:transparent;color:var(--ink);font-size:13px;font-weight:800;cursor:pointer}
+body[data-school-view="teacher"] .lu-modebanner{border-left:4px solid #159a9b;background:rgba(10,166,160,.11)}
+body[data-school-view="admin"] .lu-modebanner{border-left:4px solid #285fbf;background:rgba(30,89,194,.11)}
+header .bar{flex-wrap:wrap}
+@media(max-width:760px){.lu-rolepicker>span{display:none}.lu-rolepicker select{max-width:143px;font-size:12px}.lu-rolepicker{padding:3px 5px}}
