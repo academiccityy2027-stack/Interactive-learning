@@ -12,6 +12,10 @@
  <button type="button" class="lu-sidelink" data-go="home"><span>🏠</span> Home</button>
  <button type="button" class="lu-sidelink" data-go="missions"><span>🚀</span> Learning missions</button>
  <button type="button" class="lu-sidelink" id="resultsBtn"><span>📊</span> My results</button>
+ <button type="button" class="lu-sidelink" id="luCalendar"><span>🗓️</span> Assignment calendar</button>
+ <button type="button" class="lu-sidelink" id="luClassNotices"><span>📣</span> Class announcements</button>
+ <button type="button" class="lu-sidelink" id="luWorkspace" hidden><span>🗂️</span> My workspace</button>
+ 
  <div class="lu-sidegroup" id="luStaffHeading" hidden>STAFF TOOLS</div>
  <button type="button" class="lu-sidelink" id="dashboardBtn" hidden><span>🧑‍🏫</span> Teacher dashboard</button>
  <button type="button" class="lu-sidelink" id="adminBtn" hidden><span>🛡</span> School administration</button>
@@ -26,6 +30,7 @@
  <div class="lu-sidefoot"><span id="luSideRole">Guest · Explorer</span><small>Explore · Create · Achieve</small></div>
 </aside>
 <section class="sec mission" id="missionControl">
+ <div id="luModeBanner" class="lu-modebanner" hidden></div>
  <div class="lu-missionhead"><div><span class="lu-section-number">01 / YOUR LEARNING COMMAND CENTER</span><div class="kick">YOUR SCHOOL · YOUR ORBIT</div><h2>Mission <span>Control</span></h2><p class="mut">Choose your classroom, track what you have achieved, and discover your next challenge.</p></div><span id="connection" class="pill">Connecting…</span></div>
  <div class="lu-panel-label"><span>⚙️ YOUR LEARNING SETTINGS</span><small>Personalize your learning journey</small></div><div class="lu-filterpanel"><div class="row filterbar"><label>Grade <select id="gradeFilter" class="field" aria-label="Grade"></select></label><label>Subject <select id="subjectFilter" class="field" aria-label="Subject"></select></label><label>Class <select id="classFilter" class="field" aria-label="Class"></select></label><button class="btn o" id="joinClass">🔑 Join a class</button></div></div>
  <div class="lu-panel-label lu-progressheading"><span>📈 LEARNING PROGRESS</span><small>Your latest achievements at a glance</small></div>
