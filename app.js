@@ -106,12 +106,19 @@ $('gradeFilter').onchange=handle(async()=>{await loadClasses();await renderLearn
 let luTeacherView=false;
 function luUpdateMode(){
  if(!$('luRoleView'))return;
- $('luRoleView').hidden=APP.user?.role!=='admin';
- $('luRoleView').textContent=luTeacherView?'🔀 Switch to Admin View':'🔀 Switch to Teacher View';
- // Viewing as a teacher changes the workspace presentation, never security permissions.
- $('adminBtn').hidden=APP.user?.role!=='admin'||luTeacherView;
- $('luUsers').hidden=APP.user?.role!=='admin'||luTeacherView;
- $('luSideRole').textContent=APP.user?(APP.user.name+' · '+(APP.user.role==='admin'&&luTeacherView?'Teacher view (admin account)':APP.user.role)):'Guest · Explorer';
+ const admin=APP.user?.role==='admin',teacherMode=admin&&luTeacherView,staff=staffUser();
+ $('luRoleView').hidden=!admin;
+ $('luRoleView').textContent=teacherMode?'🛡 Switch to Administrator Workspace':'🧑‍🏫 Switch to Teacher Workspace';
+ $('dashboardBtn').hidden=!staff||admin&&!teacherMode;
+ $('adminBtn').hidden=!admin||teacherMode;
+ $('luUsers').hidden=!admin||teacherMode;
+ $('luWorkspace').hidden=!staff;
+ $('luWorkspace').textContent=admin&&!teacherMode?'🛡 Open Administrator Workspace':'🧑‍🏫 Open Teacher Workspace';
+ $('joinClass').hidden=staff;
+ $('luStaffHeading').hidden=!staff;
+ $('luSideRole').textContent=APP.user?(APP.user.name+' · '+(teacherMode?'Teacher workspace (admin account)':admin?'School administrator':APP.user.role)):'Guest · Explorer';
+ const status=$('connection');if(APP.user)status.textContent=teacherMode?'● Synced · Teacher workspace':admin?'● Synced · Administrator workspace':'● Synced · '+APP.user.role;
+ const roleBanner=$('luModeBanner');if(roleBanner){roleBanner.hidden=!staff;roleBanner.textContent=admin&&!teacherMode?'🛡 Administrator workspace · User management, school oversight and announcements': '🧑‍🏫 Teacher workspace · Class activities, announcements and assignments';}
 }
 function luListMessage(title,detail,meta){
  const card=el('article','lu-comms-item');card.append(el('strong',null,title));
@@ -122,13 +129,14 @@ function luSignInRequired(){if(!APP.user){openGate();return true}return false}
 async function luNotifications(){
  if(luSignInRequired())return;
  const w=modal('🔔 Notifications',true),r=await call('/api/comms/notifications');
- const top=el('div','lu-comms-actions');top.append(button('Open messages',luMessages,true));if(APP.user.role==='admin')top.append(button('📣 Publish school announcement',luAnnounce,true));
+ const top=el('div','lu-comms-actions');top.append(button('Open messages',luMessages,true));if(APP.user.role==='admin'&&!luTeacherView)top.append(button('📣 Publish school announcement',luAnnounce,true));top.append(button('🗓️ Class calendar',()=>luSchoolFeed('events'),true));
  w.append(top,el('h3',null,'Unread messages ('+r.unread+')'));
  if(!r.messages.length)w.append(empty('No unread messages.'));
  for(const m of r.messages){const item=luListMessage(m.subject,'From '+m.sender,new Date(m.created).toLocaleString());item.append(button('Open inbox',luMessages,true));w.append(item)}
  w.append(el('h3',null,'School announcements'));
  if(!r.announcements.length)w.append(empty('No announcements yet.'));
  for(const a of r.announcements)w.append(luListMessage(a.title,a.body,new Date(a.created).toLocaleString()));
+ w.append(button('📣 See announcements from my classes',()=>luSchoolFeed('notices'),true));
  await luRefreshUnread(r.unread);
 }
 async function luRefreshUnread(forced){
@@ -194,6 +202,60 @@ function luSearch(){
  box.oninput=pageMatches;pageMatches();box.focus();
 }
 
+
+function luDate(v){return new Date(v).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Riyadh'})+' KSA'}
+async function luSchoolFeed(kind='events'){
+ if(luSignInRequired())return;
+ const w=modal(kind==='notices'?'📣 Class announcements':'🗓️ Assignment calendar',true);
+ const panel=el('div','lu-comms-actions');
+ panel.append(button('🗓 Calendar',()=>luSchoolFeed('events'),true),button('📣 Announcements',()=>luSchoolFeed('notices'),true));
+ if(staffUser())panel.append(button(kind==='notices'?'＋ Post class announcement':'＋ Add calendar task',()=>luNewClassItem(kind),true));
+ w.append(panel);
+ const {notices,events}=await call('/api/school/feed');
+ if(kind==='notices'){
+  if(!notices.length)w.append(empty('No announcements for your classes yet.'));
+  for(const n of notices)w.append(luListMessage(n.title,n.message,n.className+' · '+luDate(n.created)));
+ }else{
+  const upcoming=events.filter(e=>new Date(e.due_at).getTime()>=Date.now()-86400000);
+  const past=events.filter(e=>new Date(e.due_at).getTime()<Date.now()-86400000);
+  w.append(el('h3',null,'Upcoming assignments and important dates'));
+  if(!upcoming.length)w.append(empty('No upcoming scheduled assignments yet.'));
+  for(const e of upcoming)w.append(luListMessage('📅 '+e.title,e.details||'Assignment deadline',e.className+' · Due '+luDate(e.due_at)));
+  if(past.length){w.append(el('h3',null,'Past deadlines'));for(const e of past.slice(-10))w.append(luListMessage(e.title,e.details,e.className+' · '+luDate(e.due_at)))}
+ }
+}
+async function luNewClassItem(kind){
+ if(!staffUser())return toast('Teacher permission required.');
+ const classes=(await call('/api/school/classes')).classes.filter(c=>APP.user.role!=='admin'||!luTeacherView||c.assigned);
+ const w=modal(kind==='notices'?'📣 Post to one class':'🗓️ Schedule an assignment');
+ if(!classes.length){w.append(empty('No assigned classes. Create a class or ask the administrator to assign one.'));return}
+ const f=el('form','appform lu-comms-controls'),sel=el('select','field');
+ for(const c of classes)sel.append(new Option('Grade '+c.grade+' · '+c.name,c.id));
+ const title=el('input','field');title.maxLength=100;title.required=true;title.placeholder=kind==='notices'?'Announcement title':'Assignment or event title';
+ const detail=el('textarea','field');detail.maxLength=kind==='notices'?1200:900;detail.required=kind==='notices';detail.placeholder=kind==='notices'?'Message shown to students enrolled in the selected class':'Instructions or important details';
+ const due=el('input','field');due.type='datetime-local';due.required=true;
+ const submit=el('button','btn',kind==='notices'?'Publish to this class':'Add to calendar');submit.type='submit';const err=el('p','errorBox');
+ f.append(el('label',null,'Class'),sel,el('label',null,'Title'),title,el('label',null,kind==='notices'?'Message':'Details'),detail);
+ if(kind!=='notices')f.append(el('label',null,'Due date and time (your device local timezone)'),due);
+ f.append(submit,err);
+ f.onsubmit=async e=>{e.preventDefault();submit.disabled=true;try{await call(kind==='notices'?'/api/school/notices/new':'/api/school/events/new',{classId:sel.value,title:title.value,...(kind==='notices'?{message:detail.value}:{details:detail.value,dueAt:new Date(due.value).toISOString()})});toast('Saved for the selected class');await luSchoolFeed(kind)}catch(ex){err.textContent=ex.message;submit.disabled=false}};
+ w.append(f);
+}
+async function luWorkspace(){
+ if(luSignInRequired())return;
+ const admin=APP.user.role==='admin'&&!luTeacherView;
+ if(!staffUser())return luSchoolFeed();
+ const w=modal(admin?'🛡 Administrator Workspace':'🧑‍🏫 Teacher Workspace',true);
+ w.append(el('p','lu-viewnotice',admin?'School-wide administration. Manage accounts, assign teachers and classes, and publish school updates.':'Focus on teaching: manage your classes, publish notices, plan deadlines and review student progress.'));
+ const actions=el('div','lu-workspace-grid');
+ if(admin){
+  actions.append(button('👥 Users & access',usersTool),button('🛡 School administration',adminTool),button('📣 School announcement',luAnnounce),button('🗓 Assignment calendar',()=>luSchoolFeed('events')));
+ }else{
+  actions.append(button('🧑‍🏫 Teacher dashboard',teacherDashboard),button('📣 Class announcements',()=>luSchoolFeed('notices')),button('🗓 Assignment calendar',()=>luSchoolFeed('events')),button('📊 Class performance',teacherDashboard));
+ }
+ w.append(actions);
+}
+
 function luToggle(open){const side=$('luSidebar'),shade=$('luShade');if(!side||!shade)return;side.classList.toggle('is-open',open);side.setAttribute('aria-hidden',String(!open));shade.hidden=!open;$('luMenu').setAttribute('aria-expanded',String(open));if(open)$('luClose').focus();else $('luMenu').focus()}
 $('luMenu').onclick=()=>luToggle(true);
 $('luClose').onclick=()=>luToggle(false);
@@ -203,7 +265,8 @@ $('luSidebar').addEventListener('click',e=>{const b=e.target.closest('button');i
 $('luProfile').onclick=profileTool;
 $('luNotify').onclick=handle(luNotifications);$('luInbox').onclick=handle(luMessages);$('luSearch').onclick=luSearch;
 $('luNotifications').onclick=handle(luNotifications);$('luMessages').onclick=handle(luMessages);$('luSupport').onclick=handle(luSupport);
-$('luRoleView').onclick=()=>{luTeacherView=!luTeacherView;luUpdateMode();toast(luTeacherView?'Teacher view enabled':'Administrator view enabled');};
+$('luRoleView').onclick=async()=>{luTeacherView=!luTeacherView;luUpdateMode();luToggle(false);await luWorkspace();};
+$('luWorkspace').onclick=handle(luWorkspace);$('luCalendar').onclick=handle(()=>luSchoolFeed('events'));$('luClassNotices').onclick=handle(()=>luSchoolFeed('notices'));
 $('gbox').onclick=()=>{$('gbox').animate([{scale:1},{scale:1.05},{scale:1}],{duration:450});boom()};$('gtag').textContent='EXPLORE · CREATE · ACHIEVE';
 (async()=>{try{APP.user=(await call('/api/me')).user;updateMe();if(APP.user){await signedIn();closeGate()}else{await loadClasses();await renderLearning();await refreshProgress();await renderProjects();openGate()}}catch(e){$('connection').textContent='Server connection unavailable';$('recommendation').textContent='Open this application through its server URL. Shared accounts and results need the backend.';updateMe();openGate();$('authFeedback').textContent=e.message}})();
 
