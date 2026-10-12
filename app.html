@@ -14,10 +14,11 @@
  <div class="lu-sidefoot"><span id="luSideRole">Guest · Explorer</span><small>Explore · Create · Achieve</small></div>
 </aside>
 <section class="sec mission" id="missionControl">
- <div class="row"><div><div class="kick">YOUR SCHOOL · YOUR ORBIT</div><h2>Mission Control</h2></div><span id="connection" class="pill">Connecting…</span></div>
- <div class="row filterbar"><button class="btn o lu-menubtn" id="luMenu" aria-label="Open navigation menu" aria-controls="luSidebar" aria-expanded="false">☰ Menu</button><label>Grade <select id="gradeFilter" class="field" aria-label="Grade"></select></label><label>Subject <select id="subjectFilter" class="field" aria-label="Subject"></select></label><label>Class <select id="classFilter" class="field" aria-label="Class"></select></label><button class="btn o" id="joinClass">🔑 Join a class</button></div>
+ <div class="lu-missionhead"><div><span class="lu-section-number">01 / YOUR LEARNING COMMAND CENTER</span><div class="kick">YOUR SCHOOL · YOUR ORBIT</div><h2>Mission <span>Control</span></h2><p class="mut">Choose your classroom, track what you have achieved, and discover your next challenge.</p></div><span id="connection" class="pill">Connecting…</span></div>
+ <div class="lu-panel-label"><span>⚙️ YOUR LEARNING SETTINGS</span><small>Personalize your learning journey</small></div><div class="lu-filterpanel"><div class="row filterbar"><button class="btn o lu-menubtn" id="luMenu" aria-label="Open navigation menu" aria-controls="luSidebar" aria-expanded="false">☰ Menu</button><label>Grade <select id="gradeFilter" class="field" aria-label="Grade"></select></label><label>Subject <select id="subjectFilter" class="field" aria-label="Subject"></select></label><label>Class <select id="classFilter" class="field" aria-label="Class"></select></label><button class="btn o" id="joinClass">🔑 Join a class</button></div></div>
+ <div class="lu-panel-label lu-progressheading"><span>📈 LEARNING PROGRESS</span><small>Your latest achievements at a glance</small></div>
  <div class="flightStats"><div><span>🚀</span><b id="completedCount">—</b><small>Tasks completed</small></div><div><span>🎯</span><b id="personalScore">—</b><small>Best-score average</small></div><div><span>🏅</span><b id="personalLevel">Core</b><small>Recommended level</small></div></div>
- <div class="appgrid" id="classAwards" style="margin-top:14px"></div>
- <p class="mut" id="recommendation">Choose your grade and explore. Sign in to save assessed progress.</p>
- <div class="row"><h3>Your next missions</h3><span class="pill">Matched to grade &amp; assessed level</span></div><div class="links" id="learningCards"></div>
+ <div class="appgrid lu-awards" id="classAwards"></div>
+ <div class="lu-recommend"><span class="lu-recommendicon">✦</span><p class="mut" id="recommendation">Choose your grade and explore. Sign in to save assessed progress.</p></div>
+ <div class="lu-nexthead"><div><span class="lu-section-number">02 / YOUR NEXT ADVENTURE</span><h3>Recommended <span>missions</span></h3><p class="mut">Curated challenges that match your grade and learning level.</p></div><span class="pill">✦ Personalized for you</span></div><div class="links lu-missioncards" id="learningCards"></div>
 </section>
