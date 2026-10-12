@@ -76,3 +76,15 @@ body{background:radial-gradient(ellipse at 75% 0%,color-mix(in srgb,var(--bg2) 6
 header .lu-topmenu{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;min-height:41px;border-radius:12px;background:linear-gradient(115deg,#145c9d,#1d78bb)!important;color:white!important;border:1px solid rgba(255,255,255,.2)!important;box-shadow:0 4px 14px rgba(5,53,106,.16);white-space:nowrap}
 header .lu-topmenu:hover{filter:brightness(1.1)}
 @media(max-width:800px){header .bar{gap:7px}header .lu-topmenu{padding:10px 12px}header .lu-topmenu span{display:none}}
+
+/* Right navigation: primary website sections and role-aware tools */
+header .bar{max-width:1440px;gap:13px}
+header .brand{max-width:350px;flex:1 1 auto}
+header .brand b{font-size:clamp(12px,1.1vw,15px);line-height:1.25}
+header .xp{margin-inline-start:auto}
+header .lu-topmenu{margin-inline-start:6px}
+.lu-sidebar{inset:0 0 0 auto;right:0;left:auto;transform:translateX(105%);border-right:0;border-left:1px solid rgba(255,255,255,.22);box-shadow:-18px 0 65px rgba(0,0,0,.32)}
+.lu-sidebar.is-open{transform:translateX(0)}
+.lu-sidebar a.lu-sidelink{text-decoration:none;cursor:pointer}
+.lu-sidebar .lu-sidelink:focus-visible{outline:2px solid #9de8ff;outline-offset:2px}
+@media(max-width:650px){header .bar{padding:9px 11px;gap:8px}header .logo{width:45px;height:38px}header .brand{max-width:none}header .brand b{font-size:11px}header .brand small{font-size:10px}header .xp{padding:5px 7px;gap:4px}header .xp .xb{width:35px}header .lu-topmenu{margin-inline-start:0;min-width:40px;justify-content:center}}
