@@ -34,7 +34,7 @@ function authForm(mode){
 }
 function userAvatar(u){if(u?.avatar?.startsWith('data:image/')){const i=el('img','personalAvatar');i.src=u.avatar;i.alt=u.name+' profile picture';return i}return el('span','av',u?.avatar||'🚀')}
 function updateMe(){$('me').replaceChildren(userAvatar(APP.user),el('span',null,APP.user?.name||'Sign in'));$('connection').textContent=APP.user?'● Synced · '+APP.user.role:'○ Guest exploration';$('dashboardBtn').hidden=!staffUser();$('adminBtn').hidden=APP.user?.role!=='admin';$('luStaffHeading').hidden=!staffUser();$('luUsers').hidden=APP.user?.role!=='admin';$('luSideRole').textContent=APP.user?(APP.user.name+' · '+APP.user.role):'Guest · Explorer';luUpdateMode();luRefreshUnread();}
-async function signedIn(){CU=APP.user.username;updateMe();$('gradeFilter').value=APP.user.grade;await loadClasses();await renderLearning();await refreshProgress();await renderProjects();}
+async function signedIn(){CU=APP.user.username;updateMe();$('gradeFilter').value=APP.user.grade;await loadClasses();await renderLearning();await refreshProgress();await renderProjects();luRenderRoleLanding();}
 async function loadClasses(){const prev=$('classFilter').value;APP.classes=APP.user?(await call('/api/classes'+(APP.user.role==='admin'&&luTeacherView?'?scope=mine':''))).classes:[];$('classFilter').replaceChildren(new Option('All my classes',''));APP.classes.filter(c=>c.grade===Number($('gradeFilter').value)).forEach(c=>$('classFilter').append(new Option(c.name,c.id)));if([...$('classFilter').options].some(o=>o.value===prev))$('classFilter').value=prev;}
 async function photoFile(f){if(!f.type.startsWith('image/'))throw new Error('Choose an image.');if(f.size>8000000)throw new Error('Choose a photo under 8 MB.');const image=await createImageBitmap(f);const canvas=document.createElement('canvas');canvas.width=canvas.height=160;const size=Math.min(image.width,image.height);canvas.getContext('2d').drawImage(image,(image.width-size)/2,(image.height-size)/2,size,size,0,0,160,160);const out=canvas.toDataURL('image/jpeg',.78);image.close();return out}
 function profileTool(){if(!APP.user)return openGate();const w=modal('👤 My profile');const form=el('form','appform');form.innerHTML='<p class="mut">@'+esc(APP.user.username)+' · '+esc(APP.user.role)+' · Synced across devices</p><label>Display name<input class="field" name="name" maxlength="50" required></label><label>Grade<select class="field" name="grade"></select></label><label>Profile photo<input class="field" name="photo" type="file" accept="image/png,image/jpeg,image/webp"></label><label>Or choose an avatar<select class="field" name="emoji">'+['🚀','🙂','😎','🤓','🦊','🐼','🐯','🌟','🎨'].map(e=>'<option>'+e+'</option>').join('')+'</select></label><button class="btn">Save profile</button><p class="errorBox" role="alert"></p>';form.elements.name.value=APP.user.name;for(let g=4;g<=12;g++)form.elements.grade.append(new Option('Grade '+g,g));form.elements.grade.value=APP.user.grade;if(!APP.user.avatar.startsWith('data:'))form.elements.emoji.value=APP.user.avatar;let keepPhoto=APP.user.avatar;form.elements.emoji.onchange=()=>keepPhoto=null;form.onsubmit=async e=>{e.preventDefault();try{const photo=form.elements.photo.files[0],a=photo?await photoFile(photo):keepPhoto||form.elements.emoji.value;const r=await call('/api/profile',{name:form.elements.name.value,grade:form.elements.grade.value,avatar:a});APP.user=r.user;await signedIn();toast('Profile saved across devices');closeOv()}catch(e){form.querySelector('.errorBox').textContent=e.message}};w.append(userAvatar(APP.user),form);const row=el('div','row');row.append(button('Change password',()=>passwordTool(),true),button('Sign out',async()=>{await call('/api/logout',{});APP.user=null;APP.results=[];P={xp:0,sc:{},streak:0,best:0,tm:P.tm};CU='guest';updateMe();await loadClasses();await renderLearning();await refreshProgress();$('galleryCards').replaceChildren(empty('Sign in to see your class project gallery.'));hud();openGate()},true));w.append(row);if(APP.user.role==='student')w.append(button('School administrator activation',()=>activateAdmin(),true));}
@@ -103,7 +103,37 @@ for(let g=4;g<=12;g++)$('gradeFilter').append(new Option('Grade '+g,g));$('subje
 $('gradeFilter').onchange=handle(async()=>{await loadClasses();await renderLearning();await renderProjects()});$('subjectFilter').onchange=handle(renderLearning);$('classFilter').onchange=handle(async()=>{await renderLearning();await renderProjects()});$('me').onclick=profileTool;$('joinClass').onclick=joinTool;$('dashboardBtn').onclick=handle(teacherDashboard);$('adminBtn').onclick=handle(adminTool);$('luUsers').onclick=handle(usersTool);$('resultsBtn').onclick=$('allResults').onclick=resultsTool;$('addProject').onclick=handle(projectTool);
 
 /* School utilities — available in the top bar and right-hand menu */
-let luTeacherView=false;
+let luTeacherView=sessionStorage.getItem('lu-working-role')==='teacher';
+function luRenderRoleLanding(){
+ const place=$('luRoleLanding');
+ if(!place)return;
+ const admin=APP.user?.role==='admin',teacherMode=admin&&luTeacherView;
+ place.hidden=!admin;
+ if(!admin)return;
+ $('luRoleOverline').textContent=teacherMode?'TEACHER PORTAL · ACADEMIC CITY SCHOOLS':'SCHOOL MANAGEMENT · ACADEMIC CITY SCHOOLS';
+ $('luRoleHeading').textContent=teacherMode?'My Teaching Workspace':'School Administration';
+ $('luRoleDescription').textContent=teacherMode?'Manage your own classes, prepare lessons, publish assignments and follow student progress.':'Manage the school, staff accounts, teacher approvals and school-wide services.';
+ const cards=$('luRoleActions');cards.replaceChildren();
+ if(teacherMode){
+  cards.append(button('🧑‍🏫 Open Teacher Dashboard',teacherDashboard),button('📅 Assignment Calendar',()=>luSchoolFeed('events')),button('📣 Class Announcements',()=>luSchoolFeed('notices')),button('📊 Class Performance',teacherDashboard));
+ }else{
+  cards.append(button('🛡 School Administration',adminTool),button('👥 Users & Access',usersTool),button('📣 School Announcement',luAnnounce),button('📅 School Calendar',()=>luSchoolFeed('events')));
+ }
+ $('luRoleStats').replaceChildren();
+ const stat=el('div','lu-role-count');
+ stat.append(el('strong',null,String(APP.classes.length)),el('span',null,teacherMode?'My assigned classes':'School classes'));
+ $('luRoleStats').append(stat);
+ const classes=$('luRoleClasses');classes.replaceChildren();
+ classes.append(el('h2',null,teacherMode?'My classes':'School overview'));
+ if(!APP.classes.length){classes.append(el('p','mut',teacherMode?'No classes are assigned to your administrator account yet. Create a class in the Teacher Dashboard or assign ownership from school management.':'No school classes have been created yet.'));return}
+ const grid=el('div','lu-class-grid');
+ for(const c of APP.classes.slice(0,24)){
+  const tile=el('div','lu-class-tile');
+  tile.append(el('small',null,'GRADE '+c.grade),el('strong',null,c.name),button(teacherMode?'Open class':'View class',()=>{ $('gradeFilter').value=c.grade;teacherDashboard() },true));
+  grid.append(tile);
+ }
+ classes.append(grid);
+}
 function luUpdateMode(){
  if(!$('luRoleView'))return;
  const admin=APP.user?.role==='admin',teacher=admin&&luTeacherView,staff=staffUser();
@@ -271,13 +301,9 @@ $('luNotifications').onclick=handle(luNotifications);$('luMessages').onclick=han
 async function luSelectRole(role){
  if(APP.user?.role!=='admin')return;
  const desired=role==='teacher';
- luTeacherView=desired;
- luUpdateMode();
- if($('luSidebar').classList.contains('is-open'))luToggle(false);
- await loadClasses();
- await renderLearning();
- await refreshProgress();
- await luWorkspace();
+ if(luTeacherView===desired)return;
+ sessionStorage.setItem('lu-working-role',desired?'teacher':'admin');
+ window.location.href=window.location.pathname+window.location.search;
 }
 $('luRoleSelect').onchange=()=>handle(()=>luSelectRole($('luRoleSelect').value))();
 $('luRoleView').onclick=()=>handle(()=>luSelectRole(luTeacherView?'admin':'teacher'))();
