@@ -6,8 +6,16 @@
     {
       "binding": "DB",
       "database_name": "learning-universe",
-      "database_id": "609ff247-fcdf-43fa-a40d-a5c4656e1f28",
-      "preview_database_id": "c400a32b-626c-48c2-b5b1-e8cc895986db"
+      "database_id": "609ff247-fcdf-43fa-a40d-a5c4656e1f28"
     }
-  ]
+  ],
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "learning-universe-preview",
+        "database_id": "REPLACE_WITH_PREVIEW_DATABASE_ID"
+      }
+    ]
+  }
 }
