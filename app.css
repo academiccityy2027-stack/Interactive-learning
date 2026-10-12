@@ -174,3 +174,16 @@ body[data-school-view="admin"] .lu-sidebar a.lu-sidelink[href="#ach"],
 body[data-school-view="admin"] .lu-sidebar [data-go="missions"],
 body[data-school-view="admin"] #resultsBtn,
 body[data-school-view="admin"] #luCalendar{display:none!important}
+
+/* Administration modules — real data and accessible actions */
+.lu-admin-tabs{display:flex;flex-wrap:wrap;gap:7px;padding:10px 0;margin:12px 0;border-bottom:1px solid var(--line)}
+.lu-admin-tabs .btn{font-size:12px;padding:9px 12px}
+.lu-admin-tabs .lu-tab-active{background:var(--acc2);color:#fff}
+.lu-admin-content h3{margin:22px 0 10px;font-size:17px}
+.lu-admin-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.lu-adminmetric{display:flex;flex-direction:column;gap:4px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.lu-adminmetric span{font-size:12px;color:var(--mut)}.lu-adminmetric strong{font-size:27px;color:var(--ink)}.lu-adminmetric small{font-size:10px;color:var(--mut)}
+.lu-admin-row{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin:12px 0}.lu-admin-row label{flex:1 1 130px;display:grid;gap:5px;font-size:12px}
+.lu-admin-report{margin-top:15px}.lu-admin-report .field{width:100%}
+.lu-rolelandingactions{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:650px){.lu-admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.lu-adminmetric{padding:12px}.lu-admin-tabs .btn{flex:1 1 38%}.lu-rolelandingactions{grid-template-columns:repeat(2,minmax(0,1fr))}}
