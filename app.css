@@ -19,3 +19,12 @@
 .lu-sidefoot small{color:#a7c6e4;font-size:11px}
 .lu-menubtn{white-space:nowrap;border-color:var(--acc2)!important}
 @media(prefers-reduced-motion:reduce){.lu-sidebar{transition:none}}
+
+/* Admin-only account directory */
+.lu-userfilters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+.lu-userfilters input{flex:2;min-width:190px}.lu-userfilters select{flex:1;min-width:130px}
+.lu-userlist{display:grid;gap:10px;margin:8px 0}
+.lu-usercard{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px}
+.lu-userinfo{display:grid;gap:4px;min-width:160px}.lu-userinfo strong{font-size:15px}.lu-userinfo small{font-size:12px}
+.lu-useractions{display:flex;gap:7px;flex-wrap:wrap}.lu-useractions .btn{font-size:12px;padding:9px 12px}
+@media(max-width:650px){.lu-usercard{align-items:stretch}.lu-useractions{width:100%}.lu-useractions .btn{flex:1}}
