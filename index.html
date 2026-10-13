@@ -237,6 +237,16 @@ html[dir="rtl"] .nv{direction:rtl}
  html[dir="rtl"] .side-nav{left:auto;right:0;border-radius:22px 0 0 22px;transform:translateX(105%)}
  html[dir="rtl"] .side-nav.open{transform:translateX(0)}
 }
+
+/* Keep navigation anchored to the viewport while the page scrolls. */
+header{position:sticky;top:0;z-index:60}
+.side-nav{position:fixed!important;top:84px;bottom:16px;height:auto;max-height:calc(100dvh - 100px);overflow-y:auto;overscroll-behavior:contain;align-self:stretch}
+html[dir="rtl"] .side-nav{top:84px;bottom:16px}
+@media(max-width:980px){
+ .side-nav{position:fixed!important;top:calc(70px + env(safe-area-inset-top,0px));bottom:0;height:auto;max-height:none;overflow-y:auto;overscroll-behavior:contain}
+ html[dir="rtl"] .side-nav{top:calc(70px + env(safe-area-inset-top,0px));bottom:0}
+}
+@supports not (height:100dvh){.side-nav{max-height:calc(100vh - 100px)}}
 </style>
 </head>
 <body>
