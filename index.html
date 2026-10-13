@@ -214,9 +214,20 @@ main>.sec,main>.hero{max-width:1240px}
 @media(prefers-reduced-motion:reduce){.side-nav,.side-nav a{transition:none!important}}
 
 </style>
+<style id="bilingualStyles">
+.language-switch{flex:none;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-weight:800;font-size:13px;padding:9px 12px;white-space:nowrap;cursor:pointer}
+.language-switch:hover{border-color:var(--acc);transform:translateY(-1px)}
+html[dir="rtl"] body{direction:rtl}
+html[dir="rtl"] .bar,html[dir="rtl"] .nv,html[dir="rtl"] .row{direction:rtl}
+html[dir="rtl"] .side-nav,html[dir="rtl"] .hero,html[dir="rtl"] .sec{text-align:right}
+html[dir="rtl"] .field,html[dir="rtl"] input,html[dir="rtl"] textarea,html[dir="rtl"] select{text-align:right;direction:rtl}
+html[dir="rtl"] .opt,html[dir="rtl"] .lk,html[dir="rtl"] .brand{text-align:right}
+html[dir="rtl"] .orbit,html[dir="rtl"] .planet,html[dir="rtl"] .sun,html[dir="rtl"] .dial,html[dir="rtl"] .reel,html[dir="rtl"] #cv{direction:ltr}
+@media(max-width:760px){.language-switch{padding:8px 9px;font-size:12px}.brand small{font-size:10px}}
+</style>
 </head>
 <body>
-<header><div class="bar"><div class="logo"><svg viewBox="0 0 360 150" role="img" aria-label="Academic City Schools emblem"><defs><linearGradient id="gR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ee4a35"/><stop offset="1" stop-color="#951410"/></linearGradient><linearGradient id="gY" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd966"/><stop offset="1" stop-color="#d4930a"/></linearGradient><linearGradient id="gN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2748a8"/><stop offset="1" stop-color="#091c58"/></linearGradient><linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c6ecf8"/><stop offset="1" stop-color="#72bfdc"/></linearGradient><linearGradient id="gG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c5ccd5"/><stop offset="1" stop-color="#616a76"/></linearGradient></defs><path fill="url(#gR)" d="M6 5C16 52 48 92 90 117C58 88 22 48 6 5Z"/><path fill="url(#gY)" d="M50 47C66 92 112 128 168 144L110 118C84 100 62 78 50 47Z"/><path fill="url(#gN)" d="M85 57C112 108 160 134 202 141L230 129C168 124 118 100 85 57Z"/><path fill="url(#gB)" d="M145 68C198 100 255 100 299 85L250 134C214 118 176 96 145 68Z"/><path fill="url(#gG)" d="M183 60C260 56 330 36 360 3C340 38 322 64 299 86C262 76 224 66 183 60Z"/></svg></div><div class="brand"><b>Academic City Schools — International Section</b><small>Learning Universe</small></div><button class="side-toggle" id="sideMenuToggle" type="button" aria-controls="sideMenu" aria-expanded="false" aria-label="Open navigation menu">☰ <span>Menu</span></button><nav class="nv" aria-label="Sections"><a href="#top">Home</a><a href="#planets">Planets</a><a href="#platforms">Platforms</a><a href="#videos">Visual Ed</a><a href="#act">Activities</a><a href="#ach">Badges</a></nav><div class="xp"><span id="lv">Lv 1</span><div class="xb"><i id="xf"></i></div><span id="xpt">0 XP</span></div><button class="me" id="me" aria-label="Open profile"></button></div></header>
+<header><div class="bar"><div class="logo"><svg viewBox="0 0 360 150" role="img" aria-label="Academic City Schools emblem"><defs><linearGradient id="gR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ee4a35"/><stop offset="1" stop-color="#951410"/></linearGradient><linearGradient id="gY" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd966"/><stop offset="1" stop-color="#d4930a"/></linearGradient><linearGradient id="gN" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2748a8"/><stop offset="1" stop-color="#091c58"/></linearGradient><linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c6ecf8"/><stop offset="1" stop-color="#72bfdc"/></linearGradient><linearGradient id="gG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c5ccd5"/><stop offset="1" stop-color="#616a76"/></linearGradient></defs><path fill="url(#gR)" d="M6 5C16 52 48 92 90 117C58 88 22 48 6 5Z"/><path fill="url(#gY)" d="M50 47C66 92 112 128 168 144L110 118C84 100 62 78 50 47Z"/><path fill="url(#gN)" d="M85 57C112 108 160 134 202 141L230 129C168 124 118 100 85 57Z"/><path fill="url(#gB)" d="M145 68C198 100 255 100 299 85L250 134C214 118 176 96 145 68Z"/><path fill="url(#gG)" d="M183 60C260 56 330 36 360 3C340 38 322 64 299 86C262 76 224 66 183 60Z"/></svg></div><div class="brand"><b>Academic City Schools — International Section</b><small>Learning Universe</small></div><button class="language-switch" id="languageSwitch" type="button" aria-label="Switch language" title="Switch language">العربية</button><button class="side-toggle" id="sideMenuToggle" type="button" aria-controls="sideMenu" aria-expanded="false" aria-label="Open navigation menu">☰ <span>Menu</span></button><nav class="nv" aria-label="Sections"><a href="#top">Home</a><a href="#planets">Planets</a><a href="#platforms">Platforms</a><a href="#videos">Visual Ed</a><a href="#act">Activities</a><a href="#ach">Badges</a></nav><div class="xp"><span id="lv">Lv 1</span><div class="xb"><i id="xf"></i></div><span id="xpt">0 XP</span></div><button class="me" id="me" aria-label="Open profile"></button></div></header>
 <aside class="side-nav" id="sideMenu" aria-label="Learning Universe sidebar">
  <div class="side-title">Explore your universe</div>
  <a class="side-planet active" href="#planets" data-side-link><span aria-hidden="true">🪐</span> Planets</a>
@@ -483,5 +494,70 @@ logoCards(document);new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(
 })();
 </script>
 
+<script id="bilingualLanguageEngine">
+(function(){
+'use strict';
+var KEY='learningUniverseLanguage';
+var dictionary={
+'Menu':'القائمة','Home':'الرئيسية','Planets':'الكواكب','Platforms':'المنصات','Visual Ed':'التعلم المرئي','Activities':'الأنشطة','Badges':'الشارات',
+'Explore your universe':'استكشف عالمك','Dashboard':'لوحة التحكم','Resources':'المصادر','Virtual Labs':'المختبرات الافتراضية','Quizzes':'الاختبارات','Projects':'المشاريع','Reports':'التقارير','Teacher Dashboard':'لوحة المعلم','Administration':'الإدارة','My Results':'نتائجي',
+'MISSION CONTROL':'مركز القيادة','Explore the':'استكشف','Tap a planet to explore resources for your grade. Complete assessed missions, collect badges and launch your next project.':'اضغط على كوكب لاستكشاف مصادر صفك. أكمل المهام، واجمع الشارات، وابدأ مشروعك التالي.',
+'Mission Commander:':'قائد المهمة:','🎲 Surprise me':'🎲 فاجئني','🎬 Videos':'🎬 الفيديوهات','🎪 Activities':'🎪 الأنشطة','Total XP':'مجموع نقاط الخبرة','Best streak 🔥':'أفضل سلسلة 🔥','Mastered 🪐':'تم إتقانه 🪐',
+'YOUR SCHOOL · YOUR ORBIT':'مدرستك · مدارك','Mission Control':'مركز القيادة','Connecting…':'جارٍ الاتصال…','Grade':'الصف','Subject':'المادة','Class':'الفصل','🔑 Join a class':'🔑 الانضمام إلى فصل',
+'Tasks completed':'المهام المكتملة','Best-score average':'متوسط أفضل نتيجة','Recommended level':'المستوى المقترح','Choose your grade and explore. Sign in to save assessed progress.':'اختر صفك واستكشف. سجّل الدخول لحفظ تقدمك ونتائجك.',
+'Your next missions':'مهامك التالية','Matched to grade & assessed level':'مناسبة للصف والمستوى','All planets':'جميع الكواكب','🏫 School & Ministry Platforms':'🏫 منصات المدرسة والوزارة',
+'Quick links to the platforms your school uses. Paste your own Classera link once and it opens in one tap.':'روابط سريعة للمنصات التي تستخدمها مدرستك. أضف رابط كلاسيرا مرة واحدة لفتحه بلمسة واحدة.',
+"Your school's Classera link (optional)":'رابط كلاسيرا الخاص بمدرستك (اختياري)','Save & open Classera':'حفظ وفتح كلاسيرا',
+'🎬 Teacher-selected videos':'🎬 فيديوهات يختارها المعلم','Watch → answer → learn':'شاهد ← أجب ← تعلّم','Specific videos selected by your teachers, with a follow-up assessment. Opening a video earns no XP.':'فيديوهات يختارها المعلم وتتبعها أسئلة تقييمية. فتح الفيديو لا يمنح نقاط خبرة.',
+'🎪 General Activities':'🎪 أنشطة عامة','Cross-subject games and energizers for any class: great for starters, breaks and team time.':'ألعاب وأنشطة تفاعلية تناسب جميع المواد، وممتازة للتهيئة والاستراحة والعمل الجماعي.',
+'🏆 Achievements':'🏆 الإنجازات','Play, learn and unlock every badge.':'تعلّم والعب وافتح جميع الشارات.','Prepared by Teacher Abdelkader Khoualdia':'إعداد المعلم عبدالقادر خوالدية',
+'Free for all teachers and students. Signed-in profiles and assessed progress sync across devices. Links open official websites; some have free-plan limits.':'متاح مجانًا للمعلمين والطلاب. تتم مزامنة الملفات الشخصية والتقدم بين الأجهزة بعد تسجيل الدخول. تفتح الروابط المواقع الرسمية وقد تفرض بعضها حدودًا للخطة المجانية.',
+'Reset progress':'إعادة ضبط التقدم','Search planets & websites…':'ابحث عن الكواكب والمواقع…','Close':'إغلاق','Welcome to the Learning Universe':'مرحبًا بك في عالم التعلّم',
+'✨ Move your mouse or tap the logo':'✨ حرّك المؤشر أو اضغط على الشعار','Welcome back! Launching your universe…':'مرحبًا بعودتك! جارٍ فتح عالمك…','Enter 🚀':'دخول 🚀','Not you? Switch account':'لست أنت؟ تبديل الحساب',
+'Username':'اسم المستخدم','Display name':'الاسم الظاهر','Your grade':'صفك','Recovery code':'رمز الاسترداد','New password':'كلمة مرور جديدة','Password':'كلمة المرور',
+'Sign in':'تسجيل الدخول','Register':'إنشاء حساب','Reset password':'إعادة تعيين كلمة المرور','Explore as guest':'استكشاف كزائر','↩ Choose account type':'↩ اختيار نوع الحساب',
+'Passwords need at least 10 characters. Save your recovery code when you register.':'يجب ألا تقل كلمة المرور عن 10 أحرف. احتفظ برمز الاسترداد عند إنشاء الحساب.',
+'Lost your recovery code? Ask your assigned teacher or school administrator to reset your password.':'هل فقدت رمز الاسترداد؟ اطلب من معلمك أو مسؤول المدرسة إعادة تعيين كلمة المرور.',
+'Student':'طالب','Teacher':'معلم','Student Login':'دخول الطالب','Teacher Login':'دخول المعلم','Administration Login':'دخول الإدارة',
+'Open navigation menu':'فتح قائمة التنقل','Open profile':'فتح الملف الشخصي','Sections':'الأقسام','View your achievements':'عرض إنجازاتك','Brain boost: tap for a fun fact':'تنشيط الذهن: اضغط لمعلومة ممتعة',
+'Question ':'السؤال ','Next →':'التالي ←','Finish 🏁':'إنهاء 🏁','Nice work!':'عمل رائع!','Keep practicing!':'واصل التدريب!','Perfect mission! +20 bonus XP':'مهمة مثالية! +20 نقطة خبرة إضافية',
+'No login':'بدون تسجيل دخول','Account optional':'الحساب اختياري','Open ↗':'فتح ↗','Open':'فتح','Done':'تم','Cancel':'إلغاء','Save':'حفظ','Search':'بحث',
+'Sign in to view your private quiz results and progress.':'سجّل الدخول لعرض نتائج اختباراتك وتقدمك الخاص.','Sign in to view projects shared with your class.':'سجّل الدخول لعرض المشاريع المشتركة مع فصلك.',
+'Student Learnspace':'مساحة تعلم الطالب','Teacher Workspace':'مساحة عمل المعلم','Admin Workspace':'مساحة الإدارة'
+};
+var textOriginal=new WeakMap(),attrOriginal=new WeakMap(),current='en';
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function translate(s){var n=norm(s);return dictionary[n]?s.replace(n,dictionary[n]):s}
+function walk(root){
+ var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),n;
+ while((n=w.nextNode())){
+  if(!n.parentElement||/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|INPUT|OPTION)$/i.test(n.parentElement.tagName))continue;
+  if(!textOriginal.has(n))textOriginal.set(n,n.nodeValue);
+  var src=textOriginal.get(n);n.nodeValue=current==='ar'?translate(src):src;
+ }
+ var els=root.nodeType===1?[root]:[];
+ if(root.querySelectorAll)els=els.concat(Array.from(root.querySelectorAll('*')));
+ els.forEach(function(e){['placeholder','aria-label','title'].forEach(function(a){
+  if(!e.hasAttribute(a))return;var store=attrOriginal.get(e)||{};
+  if(!(a in store))store[a]=e.getAttribute(a);attrOriginal.set(e,store);
+  var src=store[a];e.setAttribute(a,current==='ar'?(dictionary[norm(src)]||src):src);
+ })});
+}
+function setLanguage(lang){
+ current=lang==='ar'?'ar':'en';document.documentElement.lang=current;document.documentElement.dir=current==='ar'?'rtl':'ltr';
+ var btn=document.getElementById('languageSwitch');
+ if(btn){btn.textContent=current==='ar'?'English':'العربية';btn.setAttribute('aria-label',current==='ar'?'Switch to English':'التبديل إلى العربية');btn.title=current==='ar'?'Switch to English':'التبديل إلى العربية'}
+ walk(document.body);document.documentElement.dataset.language=current;
+}
+var saved=null;try{saved=localStorage.getItem(KEY)}catch(e){}
+setLanguage(saved==='ar'||saved==='en'?saved:(/^ar(?:-|$)/i.test(navigator.language||'')?'ar':'en'));
+var sw=document.getElementById('languageSwitch');
+if(sw)sw.addEventListener('click',function(){var next=current==='ar'?'en':'ar';try{localStorage.setItem(KEY,next)}catch(e){}setLanguage(next)});
+new MutationObserver(function(records){records.forEach(function(r){
+ if(r.type==='childList')r.addedNodes.forEach(function(n){if(n.nodeType===1)walk(n);else if(n.nodeType===3&&n.parentElement)walk(n.parentElement)});
+ else if(r.type==='characterData'&&r.target.parentElement&&!textOriginal.has(r.target))textOriginal.set(r.target,r.target.nodeValue);
+})}).observe(document.body,{childList:true,subtree:true,characterData:true});
+})();
+</script>
 </body>
 </html>
