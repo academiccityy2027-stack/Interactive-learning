@@ -504,7 +504,8 @@ async function adminTool(){
   classesWrap.replaceChildren(el('h3',null,'🏫 Classes & assignments'));
   if(!APP.classes.length)classesWrap.append(empty('No classes yet. Create the first class below.'));
   else{const list=el('div','appgrid');APP.classes.forEach(c=>{const card=el('article','appcard');card.append(el('h3',null,c.name),el('p','mut','Grade '+c.grade),el('p','mut','Join code · '+(c.code||'Managed by school')));list.append(card)});classesWrap.append(list)}
-  const assign=el('form','appform');
+  w.querySelectorAll('form[data-admin-assign]').forEach(form=>form.remove());
+  const assign=el('form','appform');assign.dataset.adminAssign='true';
   assign.innerHTML='<h3>🧑‍🏫 Assign a class to a teacher</h3><label>Class<select class="field" name="classId" required></select></label><label>Approved teacher<select class="field" name="teacherId" required></select></label><button class="btn">Assign class</button><p class="errorBox"></p>';
   APP.classes.forEach(c=>assign.elements.classId.append(new Option(c.name+' · Grade '+c.grade,c.id)));
   users.filter(u=>u.role==='teacher'||u.role==='admin').forEach(u=>assign.elements.teacherId.append(new Option(u.name+' (@'+u.username+')',u.id)));
