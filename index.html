@@ -487,7 +487,7 @@ async function renderRoleHome(){
   catch(e){stats.append(el('p','mut','School summary is temporarily unavailable. Open administration to retry.'))}
  }else{
   actions.append(button('📊 Open teaching dashboard',()=>teacherDashboard()),button('＋ Add learning content',()=>teacherDashboard(),true));
-  const cls=APP.classes.filter(c=>c.grade===Number($('gradeFilter').value));
+  const cls=APP.classes;
   [['🏫','Assigned classes',cls.length],['🎓','Grade',String(APP.user.grade)],['📚','Teaching tools','Ready']].forEach(([icon,label,value])=>{const c=el('article','role-stat');c.append(el('span',null,icon),el('small',null,label),el('strong',null,String(value)));stats.append(c)});
   const list=el('div','role-class-list');
   if(!cls.length)list.append(el('p','mut','No classes are assigned to this account yet. Ask an administrator to assign your classes.'));
