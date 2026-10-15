@@ -399,6 +399,83 @@ main>.sec,main>.hero{max-width:1240px}
 @media(max-width:420px){.gate{padding-inline:9px}.gwrap{gap:10px}.gstage{padding:16px 12px;border-radius:20px}.gcard{padding:19px 16px;border-radius:20px}.ah{font-size:25px}.af .field{height:49px}}
 @media(prefers-reduced-motion:reduce){.gbox,.gimg{animation:none!important}}
 
+
+/* V5: fresh jade + warm ivory palette, visible role switch, polished micro-interactions. */
+:root{--gate-ink:#173b36;--gate-accent:#0d766e;--gate-bright:#e07a54;--gate-soft:#edf6f2}
+.gate{background:#f4f5ef;isolation:isolate;color:#173b36}
+.gate::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 8% 8%,rgba(13,118,110,.09),transparent 36%),linear-gradient(125deg,#f8f8f2 0%,#eef4ef 100%)}
+.gstars{opacity:.25!important}
+.gwrap{width:min(1160px,100%);grid-template-columns:minmax(0,1.05fr) minmax(390px,.88fr);gap:clamp(26px,4.6vw,68px);padding:clamp(12px,2vw,24px);align-items:stretch}
+.gstage{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(24px,4vw,54px);min-height:620px;border-radius:32px;background:linear-gradient(145deg,#164d46 0%,#0d766e 68%,#178c83 100%);box-shadow:0 24px 65px rgba(23,75,65,.17);overflow:hidden}
+.gstage::before{content:"";position:absolute;right:-100px;top:-100px;width:360px;height:360px;border:1px solid rgba(255,255,255,.2);border-radius:50%;box-shadow:0 0 0 32px rgba(255,255,255,.04),0 0 0 68px rgba(255,255,255,.025);pointer-events:none}
+.gstage::after{content:"";position:absolute;bottom:-100px;left:-60px;width:270px;height:270px;background:radial-gradient(circle,rgba(245,190,146,.22),transparent 70%);pointer-events:none}
+.gbox{z-index:1;width:min(290px,82%);padding:16px;background:#fff;border:1px solid rgba(255,255,255,.8);border-radius:25px;box-shadow:0 22px 48px rgba(0,0,0,.17);transition:transform .25s,box-shadow .25s;animation:none}
+.gbox:hover{transform:translateY(-4px)!important;box-shadow:0 28px 58px rgba(0,0,0,.22)}
+.gbox:focus-visible{outline:3px solid #f1c5a6;outline-offset:5px}
+.gbox::before,.gbox::after,.gsheen,.gspark{display:none}
+.gimg{display:block;width:100%;height:auto;aspect-ratio:auto;object-fit:contain;border-radius:10px;box-shadow:none;animation:none}
+.gname{position:relative;z-index:1;margin-top:28px;max-width:510px;text-align:left}
+.school-wordmark{display:flex;flex-direction:column;gap:6px}
+.school-eyebrow{order:1;font-size:11px!important;letter-spacing:.2em!important;color:#bdebe2!important;font-weight:800}
+.school-wordmark b{order:2;color:#fff;font-size:clamp(28px,3.2vw,39px);line-height:1.45;letter-spacing:0;font-weight:900}
+.gname-divider{margin:20px 0;width:52px;height:3px;border-radius:5px;background:#f0b18f}
+.gname h1{font-size:clamp(25px,3vw,35px);line-height:1.18;letter-spacing:-.035em;color:#fff;margin:0;max-width:440px}
+.gname p{font-size:15px;line-height:1.7;color:#d4eee8;margin:12px 0 0;max-width:360px}
+.campus-points{display:flex;flex-wrap:wrap;gap:8px;margin-top:21px}
+.campus-points span{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(255,255,255,.08);font-size:12px;color:#f2fffc;transition:background .2s,transform .2s}
+.campus-points span:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
+.campus-points i{font-style:normal;color:#f4c1a5}
+.gtag{margin-top:20px;font-size:9px;letter-spacing:.22em;color:#bdebe2}
+.ghint{position:relative;z-index:1;margin-top:20px;color:#b3ddd4;font-size:10px;letter-spacing:.16em}
+.gcard{background:#fffefa;border:1px solid #e1e8df;border-radius:28px;padding:clamp(23px,3vw,38px);box-shadow:0 22px 60px rgba(29,65,55,.09);min-height:450px;color:#173b36}
+.gcard .mut{color:#657a73}
+.ah{font-size:clamp(27px,3vw,33px);letter-spacing:-.04em;color:#173b36}
+.as{font-size:14px;line-height:1.6;color:#657a73;margin:8px 0 18px}
+.role-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:5px;margin:0 0 16px;background:#f0f4ef;border:1px solid #e4ebe3;border-radius:15px}
+.role-switch button{min-width:0;padding:11px 5px;border:1px solid transparent;border-radius:11px;background:transparent;color:#4c675f;font-weight:800;font-size:12px;cursor:pointer;transition:background .2s,border-color .2s,color .2s,transform .2s}
+.role-switch button:hover{background:#e3efe9;transform:translateY(-1px)}
+.role-switch button.selected,.role-switch button[aria-pressed="true"]{background:#fff;border-color:#c7ddd3;color:#0d766e;box-shadow:0 3px 10px rgba(20,79,63,.09)}
+.role-switch button:focus-visible,.atabs button:focus-visible,.gbtn:focus-visible,.gghost:focus-visible{outline:3px solid #e07a54;outline-offset:3px}
+.atabs{background:#f0f4ef;border:1px solid #e4ebe3;padding:5px;border-radius:14px}
+.atabs button{transition:background .2s,color .2s,box-shadow .2s}
+.atabs .on{background:#fff;box-shadow:0 3px 10px rgba(23,59,54,.1);color:#0d766e}
+.af{gap:14px}
+.af label{color:#36574e;font-size:13px}
+.af .field{height:52px;border-radius:13px;background:#f8faf7;border-color:#dce6dd;transition:border-color .18s,box-shadow .18s,background .18s}
+.af .field:hover{border-color:#9cbdb0}
+.af .field:focus{background:#fff;border-color:#0d766e;box-shadow:0 0 0 4px rgba(13,118,110,.12)}
+.gbtn{height:52px;border-radius:13px;background:linear-gradient(105deg,#0d766e,#14574e);box-shadow:0 9px 20px rgba(13,118,110,.17);transition:transform .18s,box-shadow .18s,filter .18s}
+.gbtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 13px 25px rgba(13,118,110,.23);filter:saturate(1.08)}
+.gbtn:active:not(:disabled){transform:translateY(0)}
+.gbtn:disabled{opacity:.6;cursor:wait}
+#authExtra{gap:7px;flex-wrap:wrap;margin-top:12px}
+#authExtra button{border-radius:10px;padding:9px 10px;transition:background .18s,color .18s}
+#authExtra button:hover{background:#edf5ef;color:#0d766e}
+.errorBox{color:#a74332}
+@media(max-width:900px){
+ .gate{align-items:start;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(16px + env(safe-area-inset-bottom,0px))}
+ .gwrap{grid-template-columns:1fr;width:min(560px,100%);gap:12px;padding:0}
+ .gstage{min-height:0;padding:20px;border-radius:24px;align-items:center;text-align:center}
+ .gstage::before{width:210px;height:210px;right:-70px;top:-90px}
+ .gstage::after{width:150px;height:150px;left:-60px;bottom:-70px}
+ .gbox{width:94px;padding:7px;border-radius:15px}
+ .gimg{border-radius:8px}
+ .gname{margin-top:13px;text-align:center}
+ .school-wordmark{gap:3px}
+ .school-wordmark b{font-size:clamp(20px,5vw,27px)}
+ .school-eyebrow{font-size:9px!important;letter-spacing:.14em!important}
+ .gname-divider{margin:9px auto;width:38px;height:2px}
+ .gname h1{font-size:clamp(19px,4.6vw,24px);max-width:430px}
+ .gname p{font-size:12px;margin-top:5px}
+ .campus-points{justify-content:center;margin-top:11px;gap:6px}
+ .campus-points span{padding:6px 9px;font-size:10px}
+ .gtag,.ghint{display:none}
+ .gcard{min-height:0;padding:clamp(20px,5vw,29px);border-radius:22px}
+ .as{margin-bottom:14px}
+}
+@media(max-width:420px){.gate{padding-inline:9px}.gwrap{gap:10px}.gstage{padding:15px 12px;border-radius:20px}.gcard{padding:18px 15px;border-radius:20px}.ah{font-size:25px}.af .field{height:49px}.role-switch{gap:4px;padding:4px}.role-switch button{font-size:11px;padding:10px 2px}}
+@media(prefers-reduced-motion:reduce){.gbox,.gimg,.campus-points span,.gbtn{animation:none!important;transition:none!important}}
+
 </style>
 <style id="bilingualStyles">
 .language-switch{flex:none;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-weight:800;font-size:13px;padding:9px 12px;white-space:nowrap;cursor:pointer}
@@ -642,8 +719,8 @@ function openGate(mode='login'){closeOv();gate.style.display='';gate.classList.r
 let selectedAccountType='student';
 function rolePicker(){const w=el('div','auth');w.append(el('div','kick','YOUR LEARNING PASSPORT'),el('h2','ah','Choose your account type'),el('p','as','Select a role to continue. Your access is verified by your school account.'));const g=el('div','appgrid');[['🎓','Student','Access learning and student results','student'],['🧑‍🏫','Teacher','Sign in with your assigned teacher account','teacher'],['🛡️','Administration','Sign in with your authorized administrator account','admin']].forEach(([icon,title,desc,role])=>{const card=el('div','questionBox');card.append(button(icon+' '+title+' →',()=>{selectedAccountType=role;authForm('login')},true),el('p','mut',desc));g.append(card)});w.append(g,button('Explore as guest',()=>{closeGate();toast('Guest exploration · sign in to save results')},true));$('gtrack').replaceChildren(w)}
 
-function authForm(mode){const reg=mode==='register',recover=mode==='recover';$('gtrack').innerHTML='<div class="auth"><div class="kick">YOUR LEARNING PASSPORT</div><h2 class="ah">'+(reg?'Create your account':recover?'Recover your account':'Welcome, explorer')+'</h2><p class="as">'+(selectedAccountType==='teacher'?'Teacher account · use your assigned username and password':selectedAccountType==='admin'?'Administration account · use your authorized administrator credentials':'Student account · username and password only')+'</p><div class="row" id="authTabs"></div><form class="af" id="schoolAuth"><label>Username<input class="field" name="username" autocomplete="username" pattern="[A-Za-z0-9._-]{3,20}" required maxlength="20"></label>'+(reg?'<label>Display name<input class="field" name="name" maxlength="50" required></label><label>Your grade<select class="field" name="grade">'+Array.from({length:9},(_,i)=>'<option value="'+(i+4)+'">Grade '+(i+4)+'</option>').join('')+'</select></label>':'')+(recover?'<label>Recovery code<input class="field" name="code" required autocomplete="off"></label>':'')+'<label>'+(recover?'New password':'Password')+'<input class="field" type="password" name="password" autocomplete="'+(reg||recover?'new-password':'current-password')+'" required minlength="10" maxlength="128"></label><button class="gbtn" type="submit">'+(reg?'Create account 🚀':recover?'Reset password':'Launch my universe 🚀')+'</button><p class="errorBox" id="authFeedback" role="alert"></p></form><p class="mut">'+(recover?'Lost your recovery code? Ask your assigned teacher or school administrator to reset your password.':'Passwords need at least 10 characters. Save your recovery code when you register.')+'</p><div class="row" id="authExtra"></div></div>';
-$('authTabs').append(button('Sign in',()=>authForm('login'),true));if(selectedAccountType==='student')$('authTabs').append(button('Register',()=>authForm('register'),true));$('authExtra').append(button('Reset password',()=>authForm('recover'),true),button('Explore as guest',()=>{closeGate();toast('Guest exploration · sign in to save results')},true));$('authExtra').append(button('↩ Choose account type',()=>openGate('roles'),true));const form=$('schoolAuth');if(reg)form.elements.grade.value=$('gradeFilter').value;form.onsubmit=async e=>{e.preventDefault();const b=form.querySelector('button[type=submit]');b.disabled=true;const body=Object.fromEntries(new FormData(form));try{const r=await call('/api/'+(reg?'register':recover?'recover':'login'),body);if(r.user){APP.user=r.user;await signedIn()}if(r.recoveryCode){$('gtrack').replaceChildren();const w=el('div','auth');w.append(el('h2',null,'🔑 Save your recovery code'),el('p','mut',recover?'Your password is reset. The previous recovery code no longer works.':'Keep this code privately. It lets you recover your account without email.'),el('div','recovery',r.recoveryCode));const label=el('label'),chk=el('input');chk.type='checkbox';label.append(chk,document.createTextNode(' I have saved my recovery code'));const go=button(recover?'Back to sign in':'Enter my universe',()=>recover?authForm('login'):closeGate());go.disabled=true;chk.onchange=()=>go.disabled=!chk.checked;w.append(label,go);$('gtrack').append(w)}else closeGate()}catch(e){$('authFeedback').textContent=e.message;b.disabled=false}};form.elements.username.focus();}
+function authForm(mode){const reg=mode==='register',recover=mode==='recover';$('gtrack').innerHTML='<div class="auth"><div class="kick">YOUR LEARNING PASSPORT</div><h2 class="ah">'+(reg?'Create your account':recover?'Recover your account':'Welcome, explorer')+'</h2><p class="as">'+(selectedAccountType==='teacher'?'Teacher account · use your assigned username and password':selectedAccountType==='admin'?'Administration account · use your authorized administrator credentials':'Student account · username and password only')+'</p><div class="role-switch" role="group" aria-label="Choose account type"><button type="button" data-role="student" aria-pressed="false">🎓 Student</button><button type="button" data-role="teacher" aria-pressed="false">🧑‍🏫 Teacher</button><button type="button" data-role="admin" aria-pressed="false">🛡️ Admin</button></div><div class="row" id="authTabs"></div><form class="af" id="schoolAuth"><label>Username<input class="field" name="username" autocomplete="username" pattern="[A-Za-z0-9._-]{3,20}" required maxlength="20"></label>'+(reg?'<label>Display name<input class="field" name="name" maxlength="50" required></label><label>Your grade<select class="field" name="grade">'+Array.from({length:9},(_,i)=>'<option value="'+(i+4)+'">Grade '+(i+4)+'</option>').join('')+'</select></label>':'')+(recover?'<label>Recovery code<input class="field" name="code" required autocomplete="off"></label>':'')+'<label>'+(recover?'New password':'Password')+'<input class="field" type="password" name="password" autocomplete="'+(reg||recover?'new-password':'current-password')+'" required minlength="10" maxlength="128"></label><button class="gbtn" type="submit">'+(reg?'Create account 🚀':recover?'Reset password':'Launch my universe 🚀')+'</button><p class="errorBox" id="authFeedback" role="alert"></p></form><p class="mut">'+(recover?'Lost your recovery code? Ask your assigned teacher or school administrator to reset your password.':'Passwords need at least 10 characters. Save your recovery code when you register.')+'</p><div class="row" id="authExtra"></div></div>';
+$('authTabs').append(button('Sign in',()=>authForm('login'),true));if(selectedAccountType==='student')$('authTabs').append(button('Register',()=>authForm('register'),true));document.querySelectorAll('[data-role]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.role===selectedAccountType));b.classList.toggle('selected',b.dataset.role===selectedAccountType);b.onclick=()=>{selectedAccountType=b.dataset.role;authForm(reg?'register':recover?'recover':'login')}});$('authExtra').append(button('Reset password',()=>authForm('recover'),true),button('Explore as guest',()=>{closeGate();toast('Guest exploration · sign in to save results')},true));$('authExtra').append(button('↩ Choose account type',()=>openGate('roles'),true));const form=$('schoolAuth');if(reg)form.elements.grade.value=$('gradeFilter').value;form.onsubmit=async e=>{e.preventDefault();const b=form.querySelector('button[type=submit]');b.disabled=true;const body=Object.fromEntries(new FormData(form));try{const r=await call('/api/'+(reg?'register':recover?'recover':'login'),body);if(r.user){APP.user=r.user;await signedIn()}if(r.recoveryCode){$('gtrack').replaceChildren();const w=el('div','auth');w.append(el('h2',null,'🔑 Save your recovery code'),el('p','mut',recover?'Your password is reset. The previous recovery code no longer works.':'Keep this code privately. It lets you recover your account without email.'),el('div','recovery',r.recoveryCode));const label=el('label'),chk=el('input');chk.type='checkbox';label.append(chk,document.createTextNode(' I have saved my recovery code'));const go=button(recover?'Back to sign in':'Enter my universe',()=>recover?authForm('login'):closeGate());go.disabled=true;chk.onchange=()=>go.disabled=!chk.checked;w.append(label,go);$('gtrack').append(w)}else closeGate()}catch(e){$('authFeedback').textContent=e.message;b.disabled=false}};form.elements.username.focus();}
 function userAvatar(u){if(u?.avatar?.startsWith('data:image/')){const i=el('img','personalAvatar');i.src=u.avatar;i.alt=u.name+' profile picture';return i}return el('span','av',u?.avatar||'🚀')}
 function updateMe(){$('me').replaceChildren(userAvatar(APP.user),el('span',null,APP.user?.name||'Sign in'));$('connection').textContent=APP.user?'● Synced · '+APP.user.role:'○ Guest exploration';$('sideTeacherDashboard').hidden=!staffUser();const isAdmin=APP.user?.role==='admin';$('sideAdministration').hidden=!isAdmin;$('sideResources').hidden=isAdmin;$('sideVirtualLabs').hidden=isAdmin;$('sideDashboard').hidden=isAdmin;$('sideQuizzes').hidden=isAdmin;$('sideProjects').hidden=isAdmin;$('sideReports').hidden=isAdmin;$('top').hidden=isAdmin;$('missionControl').hidden=isAdmin;$('quizResults').hidden=isAdmin;$('gallery').hidden=isAdmin;}
 async function signedIn(){CU=APP.user.username;updateMe();$('gradeFilter').value=APP.user.grade;await loadClasses();await renderLearning();await refreshProgress();await renderProjects();}
