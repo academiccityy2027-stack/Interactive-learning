@@ -1,0 +1,11 @@
+{
+  "name": "interactive-learning-school",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Regression checks and release safety for Academic City Schools Interactive Learning",
+  "scripts": {
+    "check:syntax": "node --check index.js",
+    "test:signin": "node --test tests/signin-regression.test.cjs",
+    "test": "npm run check:syntax && npm run test:signin"
+  }
+}
