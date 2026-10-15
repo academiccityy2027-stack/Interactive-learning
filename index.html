@@ -13,7 +13,7 @@
 :root{--bg:#eaf0ff;--bg2:#cfdcff;--ink:#0f1938;--mut:#55628a;--card:rgba(255,255,255,.78);--line:rgba(15,25,56,.13);--acc:#5448e8;--on:#fff;--acc2:#0fb5a3;--star:0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#060a1f;--bg2:#141c4d;--ink:#eef2ff;--mut:#a5b1d9;--card:rgba(18,26,64,.72);--line:rgba(255,255,255,.15);--acc:#8c86ff;--on:#0b1030;--star:1}}
 :root[data-theme="dark"]{--bg:#060a1f;--bg2:#141c4d;--ink:#eef2ff;--mut:#a5b1d9;--card:rgba(18,26,64,.72);--line:rgba(255,255,255,.15);--acc:#8c86ff;--on:#0b1030;--star:1}
-*{box-sizing:border-box}[hidden]{display:none!important}#act,#ach,#scienceLab,#sideVirtualLabs{display:none!important}html{scroll-behavior:smooth;scroll-padding-top:calc(70px + env(safe-area-inset-top,0px))}
+*{box-sizing:border-box}[hidden]{display:none!important}html{scroll-behavior:smooth;scroll-padding-top:calc(70px + env(safe-area-inset-top,0px))}
 body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,var(--bg2),var(--bg) 62%) fixed;color:var(--ink);font-family:"Trebuchet MS",system-ui,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.55;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:var(--star);background-image:radial-gradient(1.5px 1.5px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 90px 80px,#cfe,transparent),radial-gradient(2px 2px at 150px 130px,#fde,transparent),radial-gradient(1px 1px at 60px 140px,#fff,transparent);background-size:190px 170px;animation:tw 5s ease-in-out infinite alternate}
 @keyframes tw{from{filter:brightness(.6)}to{filter:brightness(1.5)}}
