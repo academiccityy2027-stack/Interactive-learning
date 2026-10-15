@@ -291,6 +291,53 @@ main>.sec,main>.hero{max-width:1240px}
  .gbox,.gimg{animation:none!important}
 }
 
+
+/* School-first sign-in concept: preserve existing authentication behavior and logo source. */
+.gate{background:linear-gradient(135deg,#07152d 0%,#0a2855 52%,#071a32 100%);isolation:isolate}
+.gate::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 18% 18%,rgba(36,119,205,.25),transparent 40%),radial-gradient(ellipse at 80% 90%,rgba(24,180,174,.13),transparent 34%)}
+.gwrap{width:min(1120px,100%);grid-template-columns:minmax(0,1fr) minmax(370px,.92fr);gap:clamp(30px,5vw,76px);padding:clamp(12px,2vw,24px)}
+.gstage{display:flex;flex-direction:column;align-items:center;padding:12px}
+.gbox{width:min(360px,78%);padding:20px;background:#fff;border:1px solid rgba(255,255,255,.8);border-radius:30px;box-shadow:0 24px 60px rgba(0,0,0,.28),0 0 0 8px rgba(255,255,255,.07);animation:none;transform:none!important}
+.gbox::before,.gbox::after{display:none}
+.gimg{width:100%;height:auto;aspect-ratio:auto;object-fit:contain;border-radius:12px;box-shadow:none;animation:none}
+.gsheen,.gspark{display:none}
+.gname{margin-top:24px;max-width:460px;text-align:center}
+.school-wordmark{display:grid;gap:7px}
+.school-wordmark b{font-size:clamp(25px,3.2vw,38px);line-height:1.45;letter-spacing:0;color:#fff;font-weight:900}
+.school-wordmark span{font-size:12px;letter-spacing:.24em;color:#8fe5f2;font-weight:800}
+.gname-divider{width:54px;height:3px;margin:19px auto;background:linear-gradient(90deg,#8fe5f2,#fff);border-radius:9px}
+.gname h1{font-size:clamp(21px,2.5vw,29px);line-height:1.25;letter-spacing:-.025em;color:#fff;margin:0}
+.gname p{font-size:15px;color:#c6d8f3;margin:10px 0 0}
+.gtag{margin-top:14px;letter-spacing:.24em;font-size:10px;color:#9cbbe8}
+.ghint{font-size:12px;color:#b6cceb;animation:none;margin-top:16px}
+.gcard{background:#fff;border:1px solid rgba(255,255,255,.5);border-radius:26px;padding:clamp(24px,3vw,38px);box-shadow:0 30px 80px rgba(0,0,0,.3);min-height:430px}
+.ah{font-size:clamp(27px,3vw,33px);letter-spacing:-.035em}
+.as{line-height:1.6;margin:8px 0 22px}
+.atabs{background:#f0f4fa;border:1px solid #e4ebf5;padding:5px;border-radius:14px}
+.atabs .on{box-shadow:0 3px 10px rgba(10,42,94,.1)}
+.af{gap:14px}
+.af .field{height:52px;border-radius:13px;background:#f7f9fd;border-color:#d9e3f0}
+.af .field:focus{border-color:#176db7;box-shadow:0 0 0 4px rgba(23,109,183,.13)}
+.gbtn{height:52px;border-radius:13px;background:linear-gradient(110deg,#0a2a5e,#1266b3);box-shadow:0 9px 22px rgba(10,66,126,.22)}
+.gbtn:hover:not(:disabled){transform:translateY(-1px)}
+@media(max-width:860px){
+ .gate{align-items:start;padding:calc(18px + env(safe-area-inset-top,0px)) 14px calc(18px + env(safe-area-inset-bottom,0px))}
+ .gwrap{grid-template-columns:1fr;gap:18px;width:min(540px,100%);padding:0}
+ .gstage{padding:0 8px}
+ .gbox{width:min(112px,28vw);padding:8px;border-radius:18px;box-shadow:0 12px 28px rgba(0,0,0,.22),0 0 0 4px rgba(255,255,255,.06)}
+ .gimg{border-radius:10px}
+ .gname{margin-top:14px}
+ .school-wordmark{gap:3px}
+ .school-wordmark b{font-size:clamp(21px,5vw,28px)}
+ .school-wordmark span{font-size:9px;letter-spacing:.18em}
+ .gname-divider{margin:9px auto;width:36px;height:2px}
+ .gname h1{font-size:19px}
+ .gname p,.gtag,.ghint{display:none}
+ .gcard{min-height:0;padding:clamp(20px,5vw,28px);border-radius:22px}
+}
+@media(max-width:420px){.gate{padding-inline:10px}.gwrap{gap:12px}.gcard{padding:19px 16px}.ah{font-size:25px}.af .field{height:49px}}
+@media(prefers-reduced-motion:reduce){.gbox,.gimg{animation:none!important}}
+
 </style>
 <style id="bilingualStyles">
 .language-switch{flex:none;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-weight:800;font-size:13px;padding:9px 12px;white-space:nowrap;cursor:pointer}
@@ -380,7 +427,7 @@ html[dir="rtl"] .side-nav{top:84px;bottom:16px}
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="Welcome to the Learning Universe"><div class="gstars"></div><i class="gbub" style="--s:60px;--l:8%;--d:16s"></i><i class="gbub" style="--s:110px;--l:22%;--d:22s"></i><i class="gbub" style="--s:40px;--l:40%;--d:14s"></i><i class="gbub" style="--s:90px;--l:58%;--d:19s"></i><i class="gbub" style="--s:50px;--l:75%;--d:15s"></i><i class="gbub" style="--s:130px;--l:90%;--d:25s"></i>
 <div class="gwrap"><div class="gstage">
 <button class="gbox" id="gbox" aria-label="Academic City Schools emblem. Press for a surprise."><img class="gimg" id="gimg" alt="Academic City Schools logo"><span class="gsheen" aria-hidden="true"></span><span class="gspark" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i><i>✧</i></span></button>
-<div class="gname"><b>Welcome to the Learning Universe</b><div class="gtag" id="gtag" aria-label="A City of Schools"></div></div><div class="ghint" id="ghint">✨ Move your mouse or tap the logo</div></div>
+<div class="gname"><div class="school-wordmark"><b lang="ar" dir="rtl">مدارس المدينة الأكاديمية</b><span>ACADEMIC CITY SCHOOLS</span></div><div class="gname-divider"></div><h1>Welcome to your Learning Universe</h1><p>One school. Endless possibilities.</p><div class="gtag" id="gtag" aria-label="A City of Schools"></div></div><div class="ghint" id="ghint">✨ Your learning journey starts here</div></div>
 <div class="gcard" id="gcard"><div class="gmain" id="gmain"><div class="gtrack" id="gtrack"></div></div>
 <div class="gback" id="gback" hidden><span id="gbav"></span><h2 id="gbn"></h2><p class="mut">Welcome back! Launching your universe…</p><div class="gprog"><i></i></div><div class="row c"><button class="gbtn" id="gbgo">Enter 🚀</button><button class="gbtn o" id="gbsw">Not you? Switch account</button></div></div></div></div></div>
 <canvas id="cf"></canvas><div id="toast" role="status" aria-live="polite"></div>
