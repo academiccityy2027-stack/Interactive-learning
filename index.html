@@ -225,6 +225,72 @@ main>.sec,main>.hero{max-width:1240px}
 .role-class{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.role-class strong{overflow-wrap:anywhere}.role-class .mut{font-size:12px;white-space:nowrap}
 @media(max-width:650px){.role-home{margin:14px 10px 0;padding:16px}.role-home-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.role-home-head{flex-direction:column}.role-class{align-items:flex-start;flex-direction:column}}
 
+
+/* Premium sign-in visual refresh v2 — presentation only; auth markup and handlers stay untouched. */
+.gate{
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse at 12% 8%,rgba(36,130,226,.32),transparent 38%),
+    radial-gradient(ellipse at 92% 88%,rgba(20,184,166,.18),transparent 34%),
+    linear-gradient(135deg,#061329 0%,#0a2450 48%,#071a36 100%);
+}
+.gate::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.18;
+  background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:linear-gradient(to bottom,black,transparent 90%);
+}
+.gwrap{width:min(1120px,100%);grid-template-columns:minmax(0,1.02fr) minmax(360px,.98fr);gap:clamp(28px,5vw,72px);padding:clamp(8px,2vw,24px);align-items:center}
+.gstage{padding:clamp(10px,2vw,26px);position:relative}
+.gbox{width:min(390px,82%);border-radius:28px;animation:gfloat 5s ease-in-out infinite alternate}
+.gimg{border-radius:28px;box-shadow:0 28px 70px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.24),0 0 0 10px rgba(255,255,255,.035)}
+.gname{margin-top:26px}
+.gname b{font-size:clamp(24px,3vw,34px);line-height:1.18;letter-spacing:-.035em;color:#fff;text-wrap:balance}
+.gtag{margin-top:10px;letter-spacing:.22em;color:#8fe9f3;font-size:11px}
+.ghint{color:#c4d8f7;letter-spacing:.02em}
+.gcard{border:1px solid rgba(255,255,255,.58);border-radius:30px;padding:clamp(22px,3vw,38px);box-shadow:0 32px 90px rgba(0,0,0,.36),0 2px 10px rgba(2,12,40,.12);background:linear-gradient(155deg,#fff 0%,#f8fbff 100%);min-height:420px}
+.auth{padding:0}
+.ah{font-size:clamp(26px,3vw,32px);letter-spacing:-.035em;line-height:1.18}
+.as{margin:8px 0 22px;line-height:1.6;color:#657695}
+.atabs{background:#edf3fc;border:1px solid #e1e9f6;border-radius:15px;padding:5px;gap:5px;margin-bottom:18px}
+.atabs button{padding:11px 9px;border-radius:11px;transition:background .18s,box-shadow .18s,color .18s}
+.atabs .on{background:#fff;box-shadow:0 3px 12px rgba(10,42,94,.12);color:#0a2a5e}
+.af{gap:14px}
+.af label{gap:7px;color:#243e66;font-size:13px}
+.af .field{height:52px;border-radius:14px;padding-left:44px;background:#f7f9fd;border-color:#dce5f2;transition:border-color .18s,box-shadow .18s,background .18s}
+.af .field:focus{background:#fff;border-color:#1479cf;box-shadow:0 0 0 4px rgba(20,121,207,.13)}
+.fld>i{left:15px;color:#47658f}
+.eye{right:11px;border-radius:8px}
+.eye:hover,.alinks button:hover{background:#eaf2ff}
+.alinks{margin-top:2px}
+.alinks button{border-radius:8px;padding:5px 7px}
+.gbtn{height:52px;border-radius:14px;background:linear-gradient(110deg,#0a2a5e,#1266b3 68%,#0d8b9d);box-shadow:0 10px 22px rgba(10,66,126,.22);transition:transform .18s,box-shadow .18s,filter .18s}
+.gbtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 28px rgba(10,66,126,.27)}
+.gbtn:focus-visible,.atabs button:focus-visible,.alinks button:focus-visible{outline:3px solid #49b9f2;outline-offset:3px}
+.aerr{margin-top:10px;padding-inline:2px}
+.rcode{border-radius:16px;background:#f3f7ff}
+@media(max-width:860px){
+ .gate{align-items:start;padding:calc(18px + env(safe-area-inset-top,0px)) 14px calc(18px + env(safe-area-inset-bottom,0px))}
+ .gwrap{grid-template-columns:1fr;gap:18px;width:min(560px,100%);padding:0}
+ .gstage{padding:0 8px}
+ .gbox{width:min(132px,32vw);border-radius:20px}
+ .gimg{border-radius:20px;box-shadow:0 14px 36px rgba(0,0,0,.32),0 0 0 5px rgba(255,255,255,.06)}
+ .gname{margin-top:13px}.gname b{font-size:clamp(20px,5vw,26px)}
+ .gtag{margin-top:5px;font-size:9px}.ghint{display:none}
+ .gcard{min-height:0;padding:clamp(20px,5vw,30px);border-radius:24px}
+ .as{margin-bottom:18px}
+}
+@media(max-width:420px){
+ .gate{padding-inline:10px}
+ .gwrap{gap:12px}
+ .gcard{padding:19px 16px;border-radius:22px}
+ .ah{font-size:25px}
+ .af .field{height:49px}
+ .atabs button{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .gbox,.gimg{animation:none!important}
+}
+
 </style>
 <style id="bilingualStyles">
 .language-switch{flex:none;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-weight:800;font-size:13px;padding:9px 12px;white-space:nowrap;cursor:pointer}
