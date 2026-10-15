@@ -1,0 +1,51 @@
+name: Manual Cloudflare production release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RELEASE to confirm a production release
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Mandatory release preflight
+    if: github.ref == 'refs/heads/main' && inputs.confirmation == 'RELEASE'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out reviewed main branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Mandatory sign-in regression check
+        run: npm test
+
+  deploy:
+    name: Deploy approved release to Cloudflare
+    needs: preflight
+    if: needs.preflight.result == 'success' && vars.PRODUCTION_RELEASES_ENABLED == 'true' && github.ref == 'refs/heads/main' && inputs.confirmation == 'RELEASE'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - name: Check out reviewed main branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Re-run mandatory sign-in regression check
+        run: npm test
+      - name: Deploy Worker to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --name interactive-learning
